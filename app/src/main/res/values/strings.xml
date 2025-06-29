@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">IDDEEA OpenData</string>
+    <string name="welcome">Dobrodošli!</string>
+    <string name="onboarding1">Dobrodošli u IDDEEA OpenData aplikaciju!</string>
+    <string name="onboarding2">Pratite podatke o izdanim ličnim kartama u BiH i istražujte otvorene skupove podataka.</string>
+
+</resources>

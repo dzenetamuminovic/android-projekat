@@ -21,5 +21,10 @@ fun HomeScreen(navController: NavController) {
         ) {
             Text("Prikaži izdate lične karte")
         }
+        Button(
+            onClick = { navController.navigate("favourites") }) {
+            Text("Prikaži favourites")
+        }
+
     }
 }

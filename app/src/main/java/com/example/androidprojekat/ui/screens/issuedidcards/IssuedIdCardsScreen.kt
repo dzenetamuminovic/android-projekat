@@ -10,6 +10,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.androidprojekat.viewmodel.IssuedIdCardsViewModel
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.foundation.clickable
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import com.example.androidprojekat.data.local.DatabaseProvider
+import com.example.androidprojekat.data.FavouritesRepository
+import com.example.androidprojekat.viewmodel.FavouritesViewModel
+import com.example.androidprojekat.data.local.FavouritesItem
 
 @Composable
 fun IssuedIdCardsScreen(viewModel: IssuedIdCardsViewModel = viewModel()) {
@@ -17,6 +26,12 @@ fun IssuedIdCardsScreen(viewModel: IssuedIdCardsViewModel = viewModel()) {
     val isLoading by viewModel.isLoading.collectAsState()
     val entityIndex by viewModel.selectedEntityIndex.collectAsState()
     val cantonIndex by viewModel.selectedCantonIndex.collectAsState()
+
+    val context = LocalContext.current
+    val favouritesDao = DatabaseProvider.getDatabase(context).favouritesDao()
+    val favouritesRepository = FavouritesRepository(favouritesDao)
+    val favouritesViewModel = remember { FavouritesViewModel(favouritesRepository) }
+    val favourites by favouritesViewModel.favourites.collectAsState()
 
     var entityExpanded by remember { mutableStateOf(false) }
     var cantonExpanded by remember { mutableStateOf(false) }
@@ -73,9 +88,55 @@ fun IssuedIdCardsScreen(viewModel: IssuedIdCardsViewModel = viewModel()) {
         } else {
             LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 items(issuedIdCards) { item ->
+
+                    val isAlreadyFavourite = favourites.any {
+                        (it.institution ?: "").trim().equals(item.institution?.trim() ?: "", ignoreCase = true) &&
+                                (it.entity ?: "").trim().equals(item.entity?.trim() ?: "", ignoreCase = true) &&
+                                (it.canton ?: "").trim().equals(item.canton?.trim() ?: "", ignoreCase = true) &&
+                                (it.municipality ?: "").trim().equals(item.municipality?.trim() ?: "", ignoreCase = true) &&
+                                it.total == item.total
+                    }
+
+
+                    var isFavourite by remember { mutableStateOf(isAlreadyFavourite) }
+
                     Card(modifier = Modifier.fillMaxWidth()) {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            Text("Institucija: ${item.institution}", style = MaterialTheme.typography.titleMedium)
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "Institucija: ${item.institution}",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    modifier = Modifier.weight(1f)
+                                )
+
+                                Icon(
+                                    imageVector = Icons.Filled.Star,
+                                    contentDescription = "Zvjezdica",
+                                    tint = if (isFavourite) Color.Yellow else Color.Gray,
+                                    modifier = Modifier
+                                        .size(24.dp)
+                                        .clickable {
+                                            if (!isFavourite) {
+                                                isFavourite = true
+                                                favouritesViewModel.addFavourites(
+                                                    FavouritesItem(
+                                                        institution = item.institution,
+                                                        entity = item.entity,
+                                                        canton = item.canton,
+                                                        municipality = item.municipality,
+                                                        total = item.total
+                                                    )
+                                                )
+                                            }
+                                        }
+                                )
+                            }
+
+
                             Text("Entitet: ${item.entity}")
                             Text("Kanton: ${item.canton}")
                             Text("Općina: ${item.municipality}")

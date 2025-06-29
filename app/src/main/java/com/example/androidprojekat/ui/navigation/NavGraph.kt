@@ -7,6 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.androidprojekat.ui.screens.HomeScreen
 import com.example.androidprojekat.ui.screens.DetailScreen
+import com.example.androidprojekat.ui.screens.FavouritesScreen
 import com.example.androidprojekat.ui.screens.SplashScreen
 import com.example.androidprojekat.ui.screens.OnboardingScreen
 import com.example.androidprojekat.ui.screens.issuedidcards.IssuedIdCardsScreen
@@ -31,6 +32,9 @@ fun NavGraph(navController: NavHostController) {
         }
         composable("issued_cards") {
             IssuedIdCardsScreen()
+        }
+        composable("favourites") {
+            FavouritesScreen()
         }
     }
 }

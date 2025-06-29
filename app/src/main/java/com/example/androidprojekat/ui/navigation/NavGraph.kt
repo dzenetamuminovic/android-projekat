@@ -1,7 +1,6 @@
 package com.example.androidprojekat.ui.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -11,9 +10,16 @@ import com.example.androidprojekat.ui.screens.FavouritesScreen
 import com.example.androidprojekat.ui.screens.SplashScreen
 import com.example.androidprojekat.ui.screens.OnboardingScreen
 import com.example.androidprojekat.ui.screens.issuedidcards.IssuedIdCardsScreen
+import com.example.androidprojekat.viewmodel.IssuedIdCardsViewModel
+import com.example.androidprojekat.viewmodel.UniversalViewModel
 
 @Composable
-fun NavGraph(navController: NavHostController) {
+fun NavGraph(
+    navController: NavHostController,
+    universalViewModel: UniversalViewModel,
+    issuedIdCardsViewModel: IssuedIdCardsViewModel
+)
+{
     NavHost(
         navController = navController,
         startDestination = "onboarding"
@@ -31,11 +37,15 @@ fun NavGraph(navController: NavHostController) {
             DetailScreen(navController = navController)
         }
         composable("issued_cards") {
-            IssuedIdCardsScreen(navController = navController)
+            IssuedIdCardsScreen(
+                navController = navController,
+                viewModel = issuedIdCardsViewModel,
+                universalViewModel = universalViewModel
+            )
         }
 
         composable("favourites") {
-            FavouritesScreen()
+            FavouritesScreen(universalViewModel = universalViewModel)
         }
     }
 }

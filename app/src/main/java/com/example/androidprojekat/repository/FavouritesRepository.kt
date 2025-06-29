@@ -1,4 +1,4 @@
-package com.example.androidprojekat.data
+package com.example.androidprojekat.repository
 
 import com.example.androidprojekat.data.local.FavouritesDao
 import com.example.androidprojekat.data.local.FavouritesItem

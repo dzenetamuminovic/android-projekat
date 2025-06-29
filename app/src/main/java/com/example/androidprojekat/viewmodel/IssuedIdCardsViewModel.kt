@@ -9,9 +9,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class IssuedIdCardsViewModel : ViewModel() {
-
-    private val repository = IssuedIdCardsRepository()
+class IssuedIdCardsViewModel(
+    private val repository: IssuedIdCardsRepository,
+    private val universalViewModel: UniversalViewModel
+) : ViewModel() {
 
     private val _issuedIdCards = MutableStateFlow<List<IssuedIdCardInfo>>(emptyList())
     val issuedIdCards: StateFlow<List<IssuedIdCardInfo>> = _issuedIdCards
@@ -19,36 +20,7 @@ class IssuedIdCardsViewModel : ViewModel() {
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
-    val entityOptions = listOf("Entiteti", "Federacija BiH", "Republika Srpska", "Brčko Distrikt")
-    val cantonOptions = listOf(
-        "Kantoni",
-        "UNSKO-SANSKI KANTON",
-        "POSAVSKI KANTON",
-        "TUZLANSKI KANTON",
-        "ZENIČKO-DOBOJSKI KANTON",
-        "BOSANSKO-PODRINJSKI KANTON",
-        "SREDNJOBOSANSKI KANTON",
-        "HERCEGOVAČKO-NERETVANSKI KANTON",
-        "ZAPADNOHERCEGOVAČKI KANTON",
-        "KANTON 10",
-        "SARAJEVSKI KANTON"
-    )
-
-    var selectedEntityIndex = MutableStateFlow(0)
-    var selectedCantonIndex = MutableStateFlow(0)
-
     init {
-        fetchIssuedIdCards()
-    }
-
-    fun isCantonDisabled(): Boolean {
-        val selectedEntity = entityOptions[selectedEntityIndex.value]
-        return selectedEntity == "Republika Srpska" || selectedEntity == "Brčko Distrikt"
-    }
-
-    fun updateSelections(entity: Int, canton: Int = 0) {
-        selectedEntityIndex.value = entity
-        selectedCantonIndex.value = canton
         fetchIssuedIdCards()
     }
 
@@ -58,8 +30,8 @@ class IssuedIdCardsViewModel : ViewModel() {
             try {
                 val request = IssuedIdCardRequest(
                     updateDate = "2025-06-03",
-                    entityId = selectedEntityIndex.value,
-                    cantonId = selectedCantonIndex.value,
+                    entityId = universalViewModel.selectedEntityIndex.value,
+                    cantonId = universalViewModel.selectedCantonIndex.value
                 )
                 val result = repository.getIssuedIdCards(request)
                 _issuedIdCards.value = result

@@ -8,13 +8,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.example.androidprojekat.data.FavouritesRepository
+import com.example.androidprojekat.repository.FavouritesRepository
 import com.example.androidprojekat.data.local.DatabaseProvider
-import com.example.androidprojekat.data.local.FavouritesItem
 import com.example.androidprojekat.viewmodel.FavouritesViewModel
+import com.example.androidprojekat.viewmodel.UniversalViewModel
 
 @Composable
-fun FavouritesScreen() {
+fun FavouritesScreen(universalViewModel: UniversalViewModel) {
     val context = LocalContext.current
     val dao = DatabaseProvider.getDatabase(context).favouritesDao()
     val repository = FavouritesRepository(dao)

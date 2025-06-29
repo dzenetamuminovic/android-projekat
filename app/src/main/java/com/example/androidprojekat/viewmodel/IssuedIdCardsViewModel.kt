@@ -41,6 +41,17 @@ class IssuedIdCardsViewModel : ViewModel() {
         fetchIssuedIdCards()
     }
 
+    fun isCantonDisabled(): Boolean {
+        val selectedEntity = entityOptions[selectedEntityIndex.value]
+        return selectedEntity == "Republika Srpska" || selectedEntity == "Brčko Distrikt"
+    }
+
+    fun updateSelections(entity: Int, canton: Int = 0) {
+        selectedEntityIndex.value = entity
+        selectedCantonIndex.value = canton
+        fetchIssuedIdCards()
+    }
+
     fun fetchIssuedIdCards() {
         viewModelScope.launch {
             _isLoading.value = true
@@ -58,11 +69,5 @@ class IssuedIdCardsViewModel : ViewModel() {
                 _isLoading.value = false
             }
         }
-    }
-
-    fun updateSelections(entity: Int, canton: Int) {
-        selectedEntityIndex.value = entity
-        selectedCantonIndex.value = canton
-        fetchIssuedIdCards()
     }
 }

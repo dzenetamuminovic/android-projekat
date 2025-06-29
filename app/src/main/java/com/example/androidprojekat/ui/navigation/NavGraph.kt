@@ -31,8 +31,9 @@ fun NavGraph(navController: NavHostController) {
             DetailScreen(navController = navController)
         }
         composable("issued_cards") {
-            IssuedIdCardsScreen()
+            IssuedIdCardsScreen(navController = navController)
         }
+
         composable("favourites") {
             FavouritesScreen()
         }

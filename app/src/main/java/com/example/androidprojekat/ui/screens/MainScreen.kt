@@ -23,7 +23,12 @@ fun MainScreen() {
                 TopBar(
                     title = "ODP BiH App",
                     onBackClick = {
-                        navController.popBackStack()
+                        val popped = navController.popBackStack()
+                        if (!popped) {
+                            navController.navigate("home") {
+                                popUpTo("home") { inclusive = false }
+                            }
+                        }
                     }
                 )
             }

@@ -15,17 +15,21 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.foundation.clickable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavController
 import com.example.androidprojekat.data.local.DatabaseProvider
 import com.example.androidprojekat.data.FavouritesRepository
 import com.example.androidprojekat.viewmodel.FavouritesViewModel
 import com.example.androidprojekat.data.local.FavouritesItem
+import com.example.androidprojekat.ui.theme.FavouriteBackground
 
 @Composable
-fun IssuedIdCardsScreen(viewModel: IssuedIdCardsViewModel = viewModel()) {
+fun IssuedIdCardsScreen(viewModel: IssuedIdCardsViewModel = viewModel(), navController: NavController) {
     val issuedIdCards by viewModel.issuedIdCards.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val entityIndex by viewModel.selectedEntityIndex.collectAsState()
     val cantonIndex by viewModel.selectedCantonIndex.collectAsState()
+    val selectedEntity = viewModel.entityOptions[entityIndex]
+    val isCantonDisabled = selectedEntity == "Republika Srpska" || selectedEntity == "Brčko Distrikt"
 
     val context = LocalContext.current
     val favouritesDao = DatabaseProvider.getDatabase(context).favouritesDao()
@@ -63,7 +67,10 @@ fun IssuedIdCardsScreen(viewModel: IssuedIdCardsViewModel = viewModel()) {
             }
 
             Box {
-                OutlinedButton(onClick = { cantonExpanded = true }) {
+                OutlinedButton(
+                    onClick = { cantonExpanded = true },
+                    enabled = entityIndex == 0 || !isCantonDisabled
+                ) {
                     Text(viewModel.cantonOptions[cantonIndex])
                 }
                 DropdownMenu(cantonExpanded, { cantonExpanded = false }) {
@@ -89,7 +96,7 @@ fun IssuedIdCardsScreen(viewModel: IssuedIdCardsViewModel = viewModel()) {
             LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 items(issuedIdCards) { item ->
 
-                    val isAlreadyFavourite = favourites.any {
+                    val existingFavourite = favourites.find {
                         (it.institution ?: "").trim().equals(item.institution?.trim() ?: "", ignoreCase = true) &&
                                 (it.entity ?: "").trim().equals(item.entity?.trim() ?: "", ignoreCase = true) &&
                                 (it.canton ?: "").trim().equals(item.canton?.trim() ?: "", ignoreCase = true) &&
@@ -97,10 +104,14 @@ fun IssuedIdCardsScreen(viewModel: IssuedIdCardsViewModel = viewModel()) {
                                 it.total == item.total
                     }
 
+                    var isFavourite by remember { mutableStateOf(existingFavourite != null) }
 
-                    var isFavourite by remember { mutableStateOf(isAlreadyFavourite) }
-
-                    Card(modifier = Modifier.fillMaxWidth()) {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = if (isFavourite) FavouriteBackground else MaterialTheme.colorScheme.surface
+                        )
+                    ) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
@@ -110,6 +121,7 @@ fun IssuedIdCardsScreen(viewModel: IssuedIdCardsViewModel = viewModel()) {
                                 Text(
                                     text = "Institucija: ${item.institution}",
                                     style = MaterialTheme.typography.titleMedium,
+                                    color = MaterialTheme.colorScheme.onSurface,
                                     modifier = Modifier.weight(1f)
                                 )
 
@@ -120,8 +132,10 @@ fun IssuedIdCardsScreen(viewModel: IssuedIdCardsViewModel = viewModel()) {
                                     modifier = Modifier
                                         .size(24.dp)
                                         .clickable {
-                                            if (!isFavourite) {
-                                                isFavourite = true
+                                            if (isFavourite && existingFavourite != null) {
+                                                favouritesViewModel.removeFavourites(existingFavourite)
+                                                isFavourite = false
+                                            } else if (!isFavourite) {
                                                 favouritesViewModel.addFavourites(
                                                     FavouritesItem(
                                                         institution = item.institution,
@@ -131,17 +145,30 @@ fun IssuedIdCardsScreen(viewModel: IssuedIdCardsViewModel = viewModel()) {
                                                         total = item.total
                                                     )
                                                 )
+                                                isFavourite = true
                                             }
                                         }
                                 )
                             }
 
-
-                            Text("Entitet: ${item.entity}")
-                            Text("Kanton: ${item.canton}")
-                            Text("Općina: ${item.municipality}")
+                            Text(
+                                "Entitet: ${item.entity}",
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                "Kanton: ${item.canton}",
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                "Općina: ${item.municipality}",
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
                             Spacer(Modifier.height(8.dp))
-                            Text("Ukupno izdato: ${item.total}", style = MaterialTheme.typography.bodyLarge)
+                            Text(
+                                "Ukupno izdato: ${item.total}",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
                         }
                     }
                 }

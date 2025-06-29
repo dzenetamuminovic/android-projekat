@@ -1,0 +1,20 @@
+package com.example.androidprojekat.data
+
+import com.example.androidprojekat.data.local.FavouritesDao
+import com.example.androidprojekat.data.local.FavouritesItem
+import kotlinx.coroutines.flow.Flow
+
+class FavouritesRepository(private val dao: FavouritesDao) {
+
+    fun getAllFavourites(): Flow<List<FavouritesItem>> {
+        return dao.getAllFavourites()
+    }
+
+    suspend fun insertFavourites(item: FavouritesItem) {
+        dao.insertFavourites(item)
+    }
+
+    suspend fun deleteFavourites(item: FavouritesItem) {
+        dao.deleteFavourites(item)
+    }
+}

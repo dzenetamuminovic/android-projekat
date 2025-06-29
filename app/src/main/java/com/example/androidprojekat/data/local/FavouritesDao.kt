@@ -1,0 +1,17 @@
+package com.example.androidprojekat.data.local
+
+import androidx.room.*
+import kotlinx.coroutines.flow.Flow
+
+@Dao
+interface FavouritesDao {
+
+    @Query("SELECT * FROM favourites")
+    fun getAllFavourites(): Flow<List<FavouritesItem>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertFavourites(item: FavouritesItem)
+
+    @Delete
+    suspend fun deleteFavourites(item: FavouritesItem)
+}

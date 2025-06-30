@@ -48,7 +48,7 @@ fun MainScreen() {
         topBar = {
             if (currentRoute != "splash" && currentRoute != "onboarding") {
                 TopBar(
-                    title = "ODP BiH App",
+                    title = "IDDEEA OpenData",
                     onBackClick = {
                         val popped = navController.popBackStack()
                         if (!popped) {

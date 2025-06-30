@@ -5,7 +5,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.androidprojekat.ui.screens.HomeScreen
-import com.example.androidprojekat.ui.screens.DetailScreen
 import com.example.androidprojekat.ui.screens.FavouritesScreen
 import com.example.androidprojekat.ui.screens.SplashScreen
 import com.example.androidprojekat.ui.screens.OnboardingScreen
@@ -25,7 +24,7 @@ fun NavGraph(
 {
     NavHost(
         navController = navController,
-        startDestination = "splash"
+        startDestination = "home"
     ) {
         composable("splash") {
             SplashScreen(navController = navController)
@@ -36,9 +35,6 @@ fun NavGraph(
         composable("onboarding") {
             OnboardingScreen(navController = navController)
         }
-        composable("detail") {
-            DetailScreen(navController = navController)
-        }
         composable("issued_cards") {
             IssuedIdCardsScreen(
                 viewModel = issuedIdCardsViewModel,
@@ -46,7 +42,6 @@ fun NavGraph(
                 navController = navController
             )
         }
-
         composable("expired_dl_cards") {
             ExpiredDLCardsScreen(
                 viewModel = expiredDLCardsViewModel,
@@ -54,7 +49,6 @@ fun NavGraph(
                 navController = navController
             )
         }
-
         composable("favourites") {
             FavouritesScreen(universalViewModel = universalViewModel)
         }

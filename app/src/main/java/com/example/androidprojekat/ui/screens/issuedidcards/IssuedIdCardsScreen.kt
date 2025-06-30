@@ -14,10 +14,13 @@ import com.example.androidprojekat.viewmodel.UniversalViewModel
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.foundation.clickable
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
 import com.example.androidprojekat.data.local.FavouritesItem
 import com.example.androidprojekat.ui.theme.FavouriteBackground
+import com.example.androidprojekat.utils.Share
 
 @Composable
 fun IssuedIdCardsScreen(
@@ -32,6 +35,8 @@ fun IssuedIdCardsScreen(
     val selectedEntity = universalViewModel.entityOptions[entityIndex]
     val isCantonDisabled = selectedEntity == "Republika Srpska" || selectedEntity == "Brčko Distrikt"
     val favourites by universalViewModel.favourites.collectAsState()
+    val context = LocalContext.current
+
 
     var entityExpanded by remember { mutableStateOf(false) }
     var cantonExpanded by remember { mutableStateOf(false) }
@@ -99,53 +104,97 @@ fun IssuedIdCardsScreen(
                                 it.total == item.total
                     }
                     var isFavourite by remember { mutableStateOf(existingFavourite != null) }
+                    var expanded by remember { mutableStateOf(false) }
 
                     Card(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { expanded = !expanded },
                         colors = CardDefaults.cardColors(
                             containerColor = if (isFavourite) FavouriteBackground else MaterialTheme.colorScheme.surface
                         )
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
+                            Text(
+                                text = "Institucija: ${item.institution ?: ""}",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = "Općina: ${item.municipality ?: ""}",
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+
+                            if (expanded) {
+                                Spacer(Modifier.height(8.dp))
+                                Text("Entitet: ${item.entity ?: ""}", color = MaterialTheme.colorScheme.onSurface)
+                                Text("Kanton: ${item.canton ?: ""}", color = MaterialTheme.colorScheme.onSurface)
+                                Spacer(Modifier.height(8.dp))
                                 Text(
-                                    text = "Institucija: ${item.institution ?: ""}",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    modifier = Modifier.weight(1f)
+                                    "Ukupno izdato: ${item.total}",
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
-                                Icon(
-                                    imageVector = Icons.Filled.Star,
-                                    contentDescription = "Zvjezdica",
-                                    tint = if (isFavourite) Color.Yellow else Color.Gray,
-                                    modifier = Modifier.size(24.dp).clickable {
-                                        if (isFavourite && existingFavourite != null) {
-                                            universalViewModel.removeFromFavourites(existingFavourite)
-                                            isFavourite = false
-                                        } else if (!isFavourite) {
-                                            universalViewModel.addToFavourites(
-                                                FavouritesItem(
-                                                    institution = item.institution ?: "",
-                                                    entity = item.entity ?: "",
-                                                    canton = item.canton,
-                                                    municipality = item.municipality ?: "",
-                                                    total = item.total
-                                                )
+
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(top = 8.dp),
+                                    contentAlignment = Alignment.BottomEnd
+                                ) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.End
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Filled.Star,
+                                            contentDescription = "Zvjezdica",
+                                            tint = if (isFavourite) Color.Yellow else Color.Gray,
+                                            modifier = Modifier
+                                                .size(24.dp)
+                                                .clickable {
+                                                    if (isFavourite && existingFavourite != null) {
+                                                        universalViewModel.removeFromFavourites(existingFavourite)
+                                                        isFavourite = false
+                                                    } else if (!isFavourite) {
+                                                        universalViewModel.addToFavourites(
+                                                            FavouritesItem(
+                                                                institution = item.institution ?: "",
+                                                                entity = item.entity ?: "",
+                                                                canton = item.canton,
+                                                                municipality = item.municipality ?: "",
+                                                                total = item.total
+                                                            )
+                                                        )
+                                                        isFavourite = true
+                                                    }
+                                                }
+                                        )
+
+                                        Spacer(modifier = Modifier.width(16.dp))
+
+                                        IconButton(onClick = {
+                                            val shareText = """
+                                                Institucija: ${item.institution ?: ""}
+                                                Općina: ${item.municipality ?: ""}
+                                                Entitet: ${item.entity ?: ""}
+                                                Kanton: ${item.canton ?: ""}
+                                                Ukupno izdato: ${item.total}
+                                                Pogledaj više na: https://odp.gov.ba/izdane-licne
+                                            """.trimIndent()
+
+                                            Share.shareData(context, shareText)
+                                        }) {
+                                            Icon(
+                                                imageVector = Icons.Default.Share,
+                                                contentDescription = "Dijeli"
                                             )
-                                            isFavourite = true
                                         }
+
                                     }
-                                )
+                                }
+
                             }
-                            Text("Entitet: ${item.entity ?: ""}", color = MaterialTheme.colorScheme.onSurface)
-                            Text("Kanton: ${item.canton ?: ""}", color = MaterialTheme.colorScheme.onSurface)
-                            Text("Općina: ${item.municipality ?: ""}", color = MaterialTheme.colorScheme.onSurface)
-                            Spacer(Modifier.height(8.dp))
-                            Text("Ukupno izdato: ${item.total}", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurface)
                         }
                     }
                 }

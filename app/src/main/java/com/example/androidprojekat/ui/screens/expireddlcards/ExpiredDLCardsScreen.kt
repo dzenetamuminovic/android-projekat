@@ -106,55 +106,61 @@ fun ExpiredDLCardsScreen(
                                 it.total == total
                     }
                     var isFavourite by remember { mutableStateOf(existingFavourite != null) }
+                    var expanded by remember { mutableStateOf(false) }
 
                     Card(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth().clickable { expanded = !expanded },
                         colors = CardDefaults.cardColors(
                             containerColor = if (isFavourite) FavouriteBackground else MaterialTheme.colorScheme.surface
                         )
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = "Institucija: ${item.institution ?: ""}",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    modifier = Modifier.weight(1f)
-                                )
-                                Icon(
-                                    imageVector = Icons.Filled.Star,
-                                    contentDescription = "Zvjezdica",
-                                    tint = if (isFavourite) Color.Yellow else Color.Gray,
-                                    modifier = Modifier.size(24.dp).clickable {
-                                        if (isFavourite && existingFavourite != null) {
-                                            universalViewModel.removeFromFavourites(existingFavourite)
-                                            isFavourite = false
-                                        } else if (!isFavourite) {
-                                            universalViewModel.addToFavourites(
-                                                FavouritesItem(
-                                                    institution = item.institution ?: "",
-                                                    entity = item.entity ?: "",
-                                                    canton = item.canton,
-                                                    municipality = item.municipality ?: "",
-                                                    total = total
+                            Text(
+                                text = "Institucija: ${item.institution ?: ""}",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = "Općina: ${item.municipality ?: ""}",
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+
+                            if (expanded) {
+                                Spacer(Modifier.height(8.dp))
+                                Text("Entitet: ${item.entity ?: ""}", color = MaterialTheme.colorScheme.onSurface)
+                                Text("Kanton: ${item.canton ?: ""}", color = MaterialTheme.colorScheme.onSurface)
+                                Text("Muškarci: ${item.maleTotal}", color = MaterialTheme.colorScheme.onSurface)
+                                Text("Žene: ${item.femaleTotal}", color = MaterialTheme.colorScheme.onSurface)
+                                Text("Ukupno isteklih dozvola: $total", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurface)
+
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.End
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Star,
+                                        contentDescription = "Zvjezdica",
+                                        tint = if (isFavourite) Color.Yellow else Color.Gray,
+                                        modifier = Modifier.size(24.dp).clickable {
+                                            if (isFavourite && existingFavourite != null) {
+                                                universalViewModel.removeFromFavourites(existingFavourite)
+                                                isFavourite = false
+                                            } else if (!isFavourite) {
+                                                universalViewModel.addToFavourites(
+                                                    FavouritesItem(
+                                                        institution = item.institution ?: "",
+                                                        entity = item.entity ?: "",
+                                                        canton = item.canton,
+                                                        municipality = item.municipality ?: "",
+                                                        total = total
+                                                    )
                                                 )
-                                            )
-                                            isFavourite = true
+                                                isFavourite = true
+                                            }
                                         }
-                                    }
-                                )
+                                    )
+                                }
                             }
-                            Text("Entitet: ${item.entity ?: ""}", color = MaterialTheme.colorScheme.onSurface)
-                            Text("Kanton: ${item.canton ?: ""}", color = MaterialTheme.colorScheme.onSurface)
-                            Text("Općina: ${item.municipality ?: ""}", color = MaterialTheme.colorScheme.onSurface)
-                            Spacer(Modifier.height(8.dp))
-                            Text("Muškarci: ${item.maleTotal}", color = MaterialTheme.colorScheme.onSurface)
-                            Text("Žene: ${item.femaleTotal}", color = MaterialTheme.colorScheme.onSurface)
-                            Text("Ukupno isteklih dozvola: $total", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurface)
                         }
                     }
                 }

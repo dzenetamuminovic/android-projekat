@@ -1,4 +1,4 @@
-package com.example.androidprojekat.data.local
+package com.example.androidprojekat.data.local.favourites
 
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow

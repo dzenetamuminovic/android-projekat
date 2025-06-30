@@ -8,22 +8,26 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.androidprojekat.R
 import com.example.androidprojekat.viewmodel.ExpiredDLCardsViewModel
 import com.example.androidprojekat.viewmodel.UniversalViewModel
-import com.example.androidprojekat.data.local.FavouritesItem
+import com.example.androidprojekat.viewmodel.FavouritesViewModel
 import com.example.androidprojekat.ui.components.CardItem
 import com.example.androidprojekat.ui.components.BottomBar
 import com.example.androidprojekat.utils.Share
 import com.example.androidprojekat.data.api.expireddlcards.ExpiredDLCardRequest
 import com.google.accompanist.swiperefresh.*
+import com.example.androidprojekat.data.local.favourites.FavouritesItem
 
 @Composable
 fun ExpiredDLCardsScreen(
     viewModel: ExpiredDLCardsViewModel = viewModel(),
     universalViewModel: UniversalViewModel,
+    favouritesViewModel: FavouritesViewModel,
     navController: NavController
 ) {
     val context = LocalContext.current
@@ -33,7 +37,7 @@ fun ExpiredDLCardsScreen(
     val cantonIndex by universalViewModel.selectedCantonIndexDL.collectAsState()
     val selectedEntity = universalViewModel.entityOptions[entityIndex]
     val isCantonDisabled = selectedEntity == "Republika Srpska" || selectedEntity == "Brčko Distrikt"
-    val favourites by universalViewModel.favourites.collectAsState()
+    val favourites by favouritesViewModel.favourites.collectAsState()
 
     var entityExpanded by remember { mutableStateOf(false) }
     var cantonExpanded by remember { mutableStateOf(false) }
@@ -49,6 +53,10 @@ fun ExpiredDLCardsScreen(
         universalViewModel.fetchExpiredDLCards(request)
     }
 
+    LaunchedEffect(Unit) {
+        favouritesViewModel.loadFavouritesBySet(2)
+    }
+
     Scaffold(
         bottomBar = {
             BottomBar(navController = navController, favouritesRoute = "favourites", homeRoute = "home")
@@ -58,7 +66,9 @@ fun ExpiredDLCardsScreen(
         SwipeRefresh(
             state = rememberSwipeRefreshState(isRefreshing),
             onRefresh = { viewModel.refreshExpiredDLCards() },
-            modifier = Modifier.padding(innerPadding).fillMaxSize()
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
         ) {
 
             Column(
@@ -68,7 +78,7 @@ fun ExpiredDLCardsScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Istekle vozačke dozvole",
+                    text = stringResource(id = R.string.vozackedozvole),
                     style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
@@ -84,12 +94,18 @@ fun ExpiredDLCardsScreen(
                         OutlinedButton(onClick = { entityExpanded = true }) {
                             Text(universalViewModel.entityOptions[entityIndex])
                         }
-                        DropdownMenu(entityExpanded, { entityExpanded = false }) {
+                        DropdownMenu(
+                            expanded = entityExpanded,
+                            onDismissRequest = { entityExpanded = false }
+                        ) {
                             universalViewModel.entityOptions.forEachIndexed { index, option ->
-                                DropdownMenuItem(text = { Text(option) }, onClick = {
-                                    universalViewModel.updateSelectionsDL(index, cantonIndex)
-                                    entityExpanded = false
-                                })
+                                DropdownMenuItem(
+                                    text = { Text(option) },
+                                    onClick = {
+                                        universalViewModel.updateSelectionsDL(index, cantonIndex)
+                                        entityExpanded = false
+                                    }
+                                )
                             }
                         }
                     }
@@ -101,12 +117,18 @@ fun ExpiredDLCardsScreen(
                         ) {
                             Text(universalViewModel.cantonOptions[cantonIndex])
                         }
-                        DropdownMenu(cantonExpanded, { cantonExpanded = false }) {
+                        DropdownMenu(
+                            expanded = cantonExpanded,
+                            onDismissRequest = { cantonExpanded = false }
+                        ) {
                             universalViewModel.cantonOptions.forEachIndexed { index, option ->
-                                DropdownMenuItem(text = { Text(option) }, onClick = {
-                                    universalViewModel.updateSelectionsDL(entityIndex, index)
-                                    cantonExpanded = false
-                                })
+                                DropdownMenuItem(
+                                    text = { Text(option) },
+                                    onClick = {
+                                        universalViewModel.updateSelectionsDL(entityIndex, index)
+                                        cantonExpanded = false
+                                    }
+                                )
                             }
                         }
                     }
@@ -118,8 +140,9 @@ fun ExpiredDLCardsScreen(
                     }
                 } else if (expiredDLCards.isEmpty()) {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text("Nema dostupnih podataka.")
+                        Text(text = stringResource(id = R.string.noresults))
                     }
+
                 } else {
                     LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         items(expiredDLCards) { item ->
@@ -146,7 +169,7 @@ fun ExpiredDLCardsScreen(
                                 showDelete = false,
                                 onFavouriteToggle = { newState ->
                                     if (newState && existingFavourite == null) {
-                                        universalViewModel.addToFavourites(
+                                        favouritesViewModel.addFavourites(
                                             FavouritesItem(
                                                 institution = item.institution ?: "",
                                                 entity = item.entity ?: "",
@@ -157,7 +180,7 @@ fun ExpiredDLCardsScreen(
                                             )
                                         )
                                     } else if (!newState && existingFavourite != null) {
-                                        universalViewModel.removeFromFavourites(existingFavourite)
+                                        favouritesViewModel.removeFavourites(existingFavourite)
                                     }
                                 },
                                 onShareClick = {

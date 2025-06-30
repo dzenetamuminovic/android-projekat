@@ -13,15 +13,16 @@ import com.example.androidprojekat.ui.screens.issuedidcards.IssuedIdCardsScreen
 import com.example.androidprojekat.viewmodel.IssuedIdCardsViewModel
 import com.example.androidprojekat.viewmodel.ExpiredDLCardsViewModel
 import com.example.androidprojekat.viewmodel.UniversalViewModel
+import com.example.androidprojekat.viewmodel.FavouritesViewModel
 
 @Composable
 fun NavGraph(
     navController: NavHostController,
     universalViewModel: UniversalViewModel,
     issuedIdCardsViewModel: IssuedIdCardsViewModel,
-    expiredDLCardsViewModel: ExpiredDLCardsViewModel
-)
-{
+    expiredDLCardsViewModel: ExpiredDLCardsViewModel,
+    favouritesViewModel: FavouritesViewModel
+) {
     NavHost(
         navController = navController,
         startDestination = "splash"
@@ -39,6 +40,7 @@ fun NavGraph(
             IssuedIdCardsScreen(
                 viewModel = issuedIdCardsViewModel,
                 universalViewModel = universalViewModel,
+                favouritesViewModel = favouritesViewModel,
                 navController = navController
             )
         }
@@ -46,11 +48,16 @@ fun NavGraph(
             ExpiredDLCardsScreen(
                 viewModel = expiredDLCardsViewModel,
                 universalViewModel = universalViewModel,
+                favouritesViewModel = favouritesViewModel,
                 navController = navController
             )
         }
         composable("favourites") {
-            FavouritesScreen(universalViewModel = universalViewModel, navController = navController)
+            FavouritesScreen(
+                favouritesViewModel = favouritesViewModel,
+                navController = navController,
+                universalViewModel = universalViewModel
+            )
         }
     }
 }

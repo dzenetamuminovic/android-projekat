@@ -10,9 +10,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.androidprojekat.R
 import com.example.androidprojekat.repository.FavouritesRepository
 import com.example.androidprojekat.data.local.DatabaseProvider
 import com.example.androidprojekat.viewmodel.FavouritesViewModel
@@ -22,7 +24,7 @@ import com.example.androidprojekat.ui.components.BottomBar
 import com.example.androidprojekat.utils.Share
 
 @Composable
-fun FavouritesScreen(universalViewModel: UniversalViewModel, navController: NavController) {
+fun FavouritesScreen(universalViewModel: UniversalViewModel, navController: NavController, favouritesViewModel: FavouritesViewModel) {
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val dao = DatabaseProvider.getDatabase(context).favouritesDao()
@@ -74,7 +76,7 @@ fun FavouritesScreen(universalViewModel: UniversalViewModel, navController: NavC
             Spacer(modifier = Modifier.height(16.dp))
 
             if (filteredFavourites.isEmpty()) {
-                Text("Nemate sačuvanih podataka ili nema rezultata pretrage.")
+                Text(text = stringResource(id = R.string.noresults))
             } else {
                 LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     items(filteredFavourites) { item ->

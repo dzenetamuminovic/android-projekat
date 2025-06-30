@@ -21,10 +21,12 @@ import com.example.androidprojekat.viewmodel.Factory.IssuedIdCardsViewModelFacto
 import com.example.androidprojekat.viewmodel.Factory.ExpiredDLCardsViewModelFactory
 import com.example.androidprojekat.viewmodel.UniversalViewModel
 import com.example.androidprojekat.viewmodel.Factory.UniversalViewModelFactory
+import com.example.androidprojekat.viewmodel.FavouritesViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen() {
+
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -32,8 +34,9 @@ fun MainScreen() {
     val context = LocalContext.current
     val favouritesDao = DatabaseProvider.getDatabase(context).favouritesDao()
     val favouritesRepository = FavouritesRepository(favouritesDao)
-    val expiredDLCardsRepository = ExpiredDLCardsRepository(RetrofitInstance.expiredDLCardsApi, context)
+    val favouritesViewModel = remember { FavouritesViewModel(favouritesRepository) }
 
+    val expiredDLCardsRepository = ExpiredDLCardsRepository(RetrofitInstance.expiredDLCardsApi, context)
     val universalFactory = UniversalViewModelFactory(favouritesRepository, expiredDLCardsRepository)
     val universalViewModel: UniversalViewModel = viewModel(factory = universalFactory)
 
@@ -70,7 +73,8 @@ fun MainScreen() {
                 navController = navController,
                 universalViewModel = universalViewModel,
                 issuedIdCardsViewModel = issuedIdCardsViewModel,
-                expiredDLCardsViewModel = expiredDLCardsViewModel
+                expiredDLCardsViewModel = expiredDLCardsViewModel,
+                favouritesViewModel = favouritesViewModel
             )
         }
     }

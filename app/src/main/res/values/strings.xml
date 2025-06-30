@@ -3,8 +3,8 @@
     <string name="welcome">Dobrodošli!</string>
     <string name="onboarding1">Dobrodošli u IDDEEA OpenData aplikaciju!</string>
     <string name="onboarding2">Pratite podatke o izdanim ličnim kartama u BiH i istražujte otvorene skupove podataka.</string>
-    <string name="licnekarte">Prikaži izdate lične karte</string>
-    <string name="vozackedozvole">Prikaži nevažeće vozačke dozvole</string>
+    <string name="licnekarte">Izdate lične karte</string>
+    <string name="vozackedozvole">Nevažeće vozačke dozvole</string>
     <string name="favourites">Prikaži sačuvano</string>
-
+    <string name="noresults">Nema rezultata pretrage</string>
 </resources>

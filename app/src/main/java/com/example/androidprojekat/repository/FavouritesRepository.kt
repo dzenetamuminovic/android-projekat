@@ -1,7 +1,7 @@
 package com.example.androidprojekat.repository
 
-import com.example.androidprojekat.data.local.FavouritesDao
-import com.example.androidprojekat.data.local.FavouritesItem
+import com.example.androidprojekat.data.local.favourites.FavouritesItem
+import com.example.androidprojekat.data.local.favourites.FavouritesDao
 import kotlinx.coroutines.flow.Flow
 
 class FavouritesRepository(private val dao: FavouritesDao) {

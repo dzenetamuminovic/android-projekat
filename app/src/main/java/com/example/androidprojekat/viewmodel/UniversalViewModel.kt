@@ -5,8 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.androidprojekat.data.api.expireddlcards.ExpiredDLCardInfo
 import com.example.androidprojekat.data.api.expireddlcards.ExpiredDLCardRequest
 import com.example.androidprojekat.repository.ExpiredDLCardsRepository
-import com.example.androidprojekat.data.local.FavouritesItem
 import com.example.androidprojekat.repository.FavouritesRepository
+import com.example.androidprojekat.data.local.favourites.FavouritesItem
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -48,10 +48,6 @@ class UniversalViewModel(
     val selectedEntityIndexDL = MutableStateFlow(0)
     val selectedCantonIndexDL = MutableStateFlow(0)
 
-    init {
-        loadFavourites()
-    }
-
     fun updateSelectionsID(entity: Int, canton: Int = 0) {
         selectedEntityIndexID.value = entity
         selectedCantonIndexID.value = canton
@@ -60,26 +56,6 @@ class UniversalViewModel(
     fun updateSelectionsDL(entity: Int, canton: Int = 0) {
         selectedEntityIndexDL.value = entity
         selectedCantonIndexDL.value = canton
-    }
-
-    private fun loadFavourites() {
-        viewModelScope.launch {
-            favouritesRepository.getAllFavourites().collect {
-                _favourites.value = it
-            }
-        }
-    }
-
-    fun addToFavourites(item: FavouritesItem) {
-        viewModelScope.launch {
-            favouritesRepository.insertFavourites(item)
-        }
-    }
-
-    fun removeFromFavourites(item: FavouritesItem) {
-        viewModelScope.launch {
-            favouritesRepository.deleteFavourites(item)
-        }
     }
 
     fun fetchExpiredDLCards(request: ExpiredDLCardRequest) {

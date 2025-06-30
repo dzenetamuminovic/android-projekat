@@ -22,6 +22,14 @@ fun HomeScreen(navController: NavController) {
             Text("Prikaži izdate lične karte")
         }
         Button(
+            onClick = { navController.navigate("expired_dl_cards") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
+        ) {
+            Text("Prikaži nevazece vozacke dozvole")
+        }
+        Button(
             onClick = { navController.navigate("favourites") }) {
             Text("Prikaži favourites")
         }

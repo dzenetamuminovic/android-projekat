@@ -9,20 +9,23 @@ import com.example.androidprojekat.ui.screens.DetailScreen
 import com.example.androidprojekat.ui.screens.FavouritesScreen
 import com.example.androidprojekat.ui.screens.SplashScreen
 import com.example.androidprojekat.ui.screens.OnboardingScreen
+import com.example.androidprojekat.ui.screens.expireddlcards.ExpiredDLCardsScreen
 import com.example.androidprojekat.ui.screens.issuedidcards.IssuedIdCardsScreen
 import com.example.androidprojekat.viewmodel.IssuedIdCardsViewModel
+import com.example.androidprojekat.viewmodel.ExpiredDLCardsViewModel
 import com.example.androidprojekat.viewmodel.UniversalViewModel
 
 @Composable
 fun NavGraph(
     navController: NavHostController,
     universalViewModel: UniversalViewModel,
-    issuedIdCardsViewModel: IssuedIdCardsViewModel
+    issuedIdCardsViewModel: IssuedIdCardsViewModel,
+    expiredDLCardsViewModel: ExpiredDLCardsViewModel
 )
 {
     NavHost(
         navController = navController,
-        startDestination = "onboarding"
+        startDestination = "splash"
     ) {
         composable("splash") {
             SplashScreen(navController = navController)
@@ -38,9 +41,17 @@ fun NavGraph(
         }
         composable("issued_cards") {
             IssuedIdCardsScreen(
-                navController = navController,
                 viewModel = issuedIdCardsViewModel,
-                universalViewModel = universalViewModel
+                universalViewModel = universalViewModel,
+                navController = navController
+            )
+        }
+
+        composable("expired_dl_cards") {
+            ExpiredDLCardsScreen(
+                viewModel = expiredDLCardsViewModel,
+                universalViewModel = universalViewModel,
+                navController = navController
             )
         }
 

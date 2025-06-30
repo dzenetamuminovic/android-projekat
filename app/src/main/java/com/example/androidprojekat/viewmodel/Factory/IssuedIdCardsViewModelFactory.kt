@@ -1,9 +1,11 @@
-package com.example.androidprojekat.viewmodel
+package com.example.androidprojekat.viewmodel.Factory
 
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.androidprojekat.repository.IssuedIdCardsRepository
+import com.example.androidprojekat.viewmodel.IssuedIdCardsViewModel
+import com.example.androidprojekat.viewmodel.UniversalViewModel
 
 class IssuedIdCardsViewModelFactory(
     private val repository: IssuedIdCardsRepository,

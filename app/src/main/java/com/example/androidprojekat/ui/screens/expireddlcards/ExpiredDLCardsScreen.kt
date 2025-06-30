@@ -1,4 +1,4 @@
-package com.example.androidprojekat.ui.screens.issuedidcards
+package com.example.androidprojekat.ui.screens.expireddlcards
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -9,7 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.androidprojekat.viewmodel.IssuedIdCardsViewModel
+import com.example.androidprojekat.viewmodel.ExpiredDLCardsViewModel
 import com.example.androidprojekat.viewmodel.UniversalViewModel
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
@@ -18,17 +18,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
 import com.example.androidprojekat.data.local.FavouritesItem
 import com.example.androidprojekat.ui.theme.FavouriteBackground
+import com.example.androidprojekat.data.api.expireddlcards.ExpiredDLCardRequest
 
 @Composable
-fun IssuedIdCardsScreen(
-    viewModel: IssuedIdCardsViewModel = viewModel(),
+fun ExpiredDLCardsScreen(
+    viewModel: ExpiredDLCardsViewModel = viewModel(),
     universalViewModel: UniversalViewModel,
     navController: NavController
 ) {
-    val issuedIdCards by viewModel.issuedIdCards.collectAsState()
-    val isLoading by viewModel.isLoading.collectAsState()
-    val entityIndex by universalViewModel.selectedEntityIndexID.collectAsState()
-    val cantonIndex by universalViewModel.selectedCantonIndexID.collectAsState()
+    val expiredDLCards by universalViewModel.expiredDLCards.collectAsState()
+    val isLoading by universalViewModel.isLoading.collectAsState()
+    val entityIndex by universalViewModel.selectedEntityIndexDL.collectAsState()
+    val cantonIndex by universalViewModel.selectedCantonIndexDL.collectAsState()
     val selectedEntity = universalViewModel.entityOptions[entityIndex]
     val isCantonDisabled = selectedEntity == "Republika Srpska" || selectedEntity == "Brčko Distrikt"
     val favourites by universalViewModel.favourites.collectAsState()
@@ -37,7 +38,12 @@ fun IssuedIdCardsScreen(
     var cantonExpanded by remember { mutableStateOf(false) }
 
     LaunchedEffect(entityIndex, cantonIndex) {
-        viewModel.fetchIssuedIdCards()
+        val request = ExpiredDLCardRequest(
+            updateDate = "2025-06-03",
+            entityId = entityIndex,
+            cantonId = cantonIndex
+        )
+        universalViewModel.fetchExpiredDLCards(request)
     }
 
     Column(
@@ -55,7 +61,7 @@ fun IssuedIdCardsScreen(
                 DropdownMenu(entityExpanded, { entityExpanded = false }) {
                     universalViewModel.entityOptions.forEachIndexed { index, option ->
                         DropdownMenuItem(text = { Text(option) }, onClick = {
-                            universalViewModel.updateSelectionsID(index, cantonIndex)
+                            universalViewModel.updateSelectionsDL(index, cantonIndex)
                             entityExpanded = false
                         })
                     }
@@ -72,7 +78,7 @@ fun IssuedIdCardsScreen(
                 DropdownMenu(cantonExpanded, { cantonExpanded = false }) {
                     universalViewModel.cantonOptions.forEachIndexed { index, option ->
                         DropdownMenuItem(text = { Text(option) }, onClick = {
-                            universalViewModel.updateSelectionsID(entityIndex, index)
+                            universalViewModel.updateSelectionsDL(entityIndex, index)
                             cantonExpanded = false
                         })
                     }
@@ -84,19 +90,20 @@ fun IssuedIdCardsScreen(
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
             }
-        } else if (issuedIdCards.isEmpty()) {
+        } else if (expiredDLCards.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text("Nema dostupnih podataka.")
             }
         } else {
             LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                items(issuedIdCards) { item ->
+                items(expiredDLCards) { item ->
+                    val total = item.maleTotal + item.femaleTotal
                     val existingFavourite = favourites.find {
                         (it.institution?.trim() ?: "").equals(item.institution?.trim() ?: "", ignoreCase = true) &&
                                 (it.entity?.trim() ?: "").equals(item.entity?.trim() ?: "", ignoreCase = true) &&
                                 (it.canton ?: "").trim().equals(item.canton?.trim() ?: "", ignoreCase = true) &&
                                 (it.municipality?.trim() ?: "").equals(item.municipality?.trim() ?: "", ignoreCase = true) &&
-                                it.total == item.total
+                                it.total == total
                     }
                     var isFavourite by remember { mutableStateOf(existingFavourite != null) }
 
@@ -133,7 +140,7 @@ fun IssuedIdCardsScreen(
                                                     entity = item.entity ?: "",
                                                     canton = item.canton,
                                                     municipality = item.municipality ?: "",
-                                                    total = item.total
+                                                    total = total
                                                 )
                                             )
                                             isFavourite = true
@@ -145,7 +152,9 @@ fun IssuedIdCardsScreen(
                             Text("Kanton: ${item.canton ?: ""}", color = MaterialTheme.colorScheme.onSurface)
                             Text("Općina: ${item.municipality ?: ""}", color = MaterialTheme.colorScheme.onSurface)
                             Spacer(Modifier.height(8.dp))
-                            Text("Ukupno izdato: ${item.total}", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurface)
+                            Text("Muškarci: ${item.maleTotal}", color = MaterialTheme.colorScheme.onSurface)
+                            Text("Žene: ${item.femaleTotal}", color = MaterialTheme.colorScheme.onSurface)
+                            Text("Ukupno isteklih dozvola: $total", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurface)
                         }
                     }
                 }

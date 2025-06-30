@@ -1,6 +1,5 @@
 package com.example.androidprojekat.data.api.issuedidcards
 
-
 data class IssuedIdCardInfo(
     val entity: String,
     val canton: String,

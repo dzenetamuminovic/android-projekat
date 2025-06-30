@@ -30,8 +30,8 @@ class IssuedIdCardsViewModel(
             try {
                 val request = IssuedIdCardRequest(
                     updateDate = "2025-06-03",
-                    entityId = universalViewModel.selectedEntityIndex.value,
-                    cantonId = universalViewModel.selectedCantonIndex.value
+                    entityId = universalViewModel.selectedEntityIndexID.value,
+                    cantonId = universalViewModel.selectedCantonIndexID.value
                 )
                 val result = repository.getIssuedIdCards(request)
                 _issuedIdCards.value = result

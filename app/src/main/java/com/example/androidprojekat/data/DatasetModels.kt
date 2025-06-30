@@ -1,7 +1,7 @@
 package com.example.androidprojekat.data
 
 data class DatasetListRequest(
-    val languageId: Int = 4 // 4 = English
+    val languageId: Int = 4
 )
 
 data class DatasetListResponse(

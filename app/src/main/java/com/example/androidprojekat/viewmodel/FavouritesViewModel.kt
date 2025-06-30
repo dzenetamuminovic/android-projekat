@@ -36,4 +36,13 @@ class FavouritesViewModel(private val repository: FavouritesRepository) : ViewMo
             repository.deleteFavourites(item)
         }
     }
+
+    fun loadFavouritesBySet(setId: Int) {
+        viewModelScope.launch {
+            repository.getFavouritesBySet(setId).collect {
+                _favourites.value = it
+            }
+        }
+    }
+
 }

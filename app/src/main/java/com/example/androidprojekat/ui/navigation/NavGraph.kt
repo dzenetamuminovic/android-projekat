@@ -24,7 +24,7 @@ fun NavGraph(
 {
     NavHost(
         navController = navController,
-        startDestination = "home"
+        startDestination = "splash"
     ) {
         composable("splash") {
             SplashScreen(navController = navController)
@@ -50,7 +50,7 @@ fun NavGraph(
             )
         }
         composable("favourites") {
-            FavouritesScreen(universalViewModel = universalViewModel)
+            FavouritesScreen(universalViewModel = universalViewModel, navController = navController)
         }
     }
 }

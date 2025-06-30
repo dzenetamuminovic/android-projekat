@@ -17,4 +17,9 @@ class FavouritesRepository(private val dao: FavouritesDao) {
     suspend fun deleteFavourites(item: FavouritesItem) {
         dao.deleteFavourites(item)
     }
+
+    fun getFavouritesBySet(setId: Int): Flow<List<FavouritesItem>> {
+        return dao.getFavouritesBySet(setId)
+    }
+
 }

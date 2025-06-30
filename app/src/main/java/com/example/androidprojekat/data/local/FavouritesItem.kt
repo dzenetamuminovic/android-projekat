@@ -10,5 +10,6 @@ data class FavouritesItem(
     val entity: String,
     val canton: String?,
     val municipality: String,
-    val total: Int
+    val total: Int,
+    val setId: Int
 )

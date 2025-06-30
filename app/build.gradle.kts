@@ -58,6 +58,10 @@ dependencies {
     // Compose Icons - Extended Material Icons
     implementation("androidx.compose.material:material-icons-extended")
 
+    //Swipe refresh
+    implementation ("com.google.accompanist:accompanist-swiperefresh:0.28.0")
+
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

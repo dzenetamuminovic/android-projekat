@@ -32,12 +32,12 @@ fun MainScreen() {
     val context = LocalContext.current
     val favouritesDao = DatabaseProvider.getDatabase(context).favouritesDao()
     val favouritesRepository = FavouritesRepository(favouritesDao)
-    val expiredDLCardsRepository = ExpiredDLCardsRepository(RetrofitInstance.expiredDLCardsApi)
+    val expiredDLCardsRepository = ExpiredDLCardsRepository(RetrofitInstance.expiredDLCardsApi, context)
 
     val universalFactory = UniversalViewModelFactory(favouritesRepository, expiredDLCardsRepository)
     val universalViewModel: UniversalViewModel = viewModel(factory = universalFactory)
 
-    val issuedCardsRepository = IssuedIdCardsRepository()
+    val issuedCardsRepository = IssuedIdCardsRepository(context)
     val issuedFactory = IssuedIdCardsViewModelFactory(issuedCardsRepository, universalViewModel)
     val issuedIdCardsViewModel: IssuedIdCardsViewModel = viewModel(factory = issuedFactory)
 

@@ -20,26 +20,67 @@ class ExpiredDLCardsViewModel(
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing: StateFlow<Boolean> = _isRefreshing
+
     init {
         fetchExpiredDLCards()
     }
 
-    fun fetchExpiredDLCards() {
+    fun fetchExpiredDLCards(forceRefresh: Boolean = false) {
         viewModelScope.launch {
             _isLoading.value = true
-            try {
-                val request = ExpiredDLCardRequest(
-                    updateDate = "2025-06-03",
-                    entityId = universalViewModel.selectedEntityIndexDL.value,
-                    cantonId = universalViewModel.selectedCantonIndexDL.value
-                )
-                val result = repository.getExpiredDLCards(request)
-                _expiredDLCards.value = result.result
-            } catch (e: Exception) {
-                _expiredDLCards.value = emptyList()
-            } finally {
-                _isLoading.value = false
+
+            val hasInternet = repository.hasInternetConnection()
+
+            if (hasInternet || forceRefresh) {
+                try {
+                    val request = ExpiredDLCardRequest(
+                        updateDate = "2025-06-03",
+                        entityId = universalViewModel.selectedEntityIndexDL.value,
+                        cantonId = universalViewModel.selectedCantonIndexDL.value
+                    )
+                    val apiData = repository.getExpiredDLCards(request)
+                    repository.clearLocalData()
+                    repository.saveToLocal(apiData.result)
+                    _expiredDLCards.value = apiData.result
+                } catch (e: Exception) {
+                    _expiredDLCards.value = repository.loadFromLocal().map {
+                        ExpiredDLCardInfo(
+                            entity = it.entity,
+                            canton = it.canton ?: "",
+                            municipality = it.municipality,
+                            institution = it.institution,
+                            dateUpdate = it.dateUpdate,
+                            maleTotal = it.maleTotal,
+                            femaleTotal = it.femaleTotal
+                        )
+                    }
+                }
+            } else {
+                _expiredDLCards.value = repository.loadFromLocal().map {
+                    ExpiredDLCardInfo(
+                        entity = it.entity,
+                        canton = it.canton ?: "",
+                        municipality = it.municipality,
+                        institution = it.institution,
+                        dateUpdate = it.dateUpdate,
+                        maleTotal = it.maleTotal,
+                        femaleTotal = it.femaleTotal
+                    )
+                }
             }
+
+            _isLoading.value = false
+        }
+    }
+
+
+    fun refreshExpiredDLCards() {
+        viewModelScope.launch {
+            _isRefreshing.value = true
+            fetchExpiredDLCards(forceRefresh = true)
+            _isRefreshing.value = false
         }
     }
 }

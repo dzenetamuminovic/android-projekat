@@ -52,16 +52,6 @@ class UniversalViewModel(
         loadFavourites()
     }
 
-    fun isCantonDisabledForID(): Boolean {
-        val selectedEntity = entityOptions[selectedEntityIndexID.value]
-        return selectedEntity == "Republika Srpska" || selectedEntity == "Brčko Distrikt"
-    }
-
-    fun isCantonDisabledForDL(): Boolean {
-        val selectedEntity = entityOptions[selectedEntityIndexDL.value]
-        return selectedEntity == "Republika Srpska" || selectedEntity == "Brčko Distrikt"
-    }
-
     fun updateSelectionsID(entity: Int, canton: Int = 0) {
         selectedEntityIndexID.value = entity
         selectedCantonIndexID.value = canton
@@ -105,4 +95,5 @@ class UniversalViewModel(
             }
         }
     }
+
 }

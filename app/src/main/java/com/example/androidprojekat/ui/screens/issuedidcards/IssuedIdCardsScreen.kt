@@ -17,6 +17,7 @@ import com.example.androidprojekat.data.local.FavouritesItem
 import com.example.androidprojekat.ui.components.BottomBar
 import com.example.androidprojekat.ui.components.CardItem
 import com.example.androidprojekat.utils.Share
+import com.google.accompanist.swiperefresh.*
 
 @Composable
 fun IssuedIdCardsScreen(
@@ -27,6 +28,7 @@ fun IssuedIdCardsScreen(
     val context = LocalContext.current
     val issuedIdCards by viewModel.issuedIdCards.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+    val isRefreshing by viewModel.isRefreshing.collectAsState()
     val entityIndex by universalViewModel.selectedEntityIndexID.collectAsState()
     val cantonIndex by universalViewModel.selectedCantonIndexID.collectAsState()
     val selectedEntity = universalViewModel.entityOptions[entityIndex]
@@ -45,116 +47,123 @@ fun IssuedIdCardsScreen(
             BottomBar(navController = navController, favouritesRoute = "favourites", homeRoute = "home")
         }
     ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+
+        SwipeRefresh(
+            state = rememberSwipeRefreshState(isRefreshing),
+            onRefresh = { viewModel.refreshIssuedIdCards() },
+            modifier = Modifier.padding(innerPadding).fillMaxSize()
         ) {
-            Text(
-                text = "Izdane lične karte",
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
 
-            Row(
+            Column(
                 modifier = Modifier
-                    .widthIn(max = 400.dp)
-                    .padding(bottom = 16.dp),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
+                    .fillMaxSize()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Box(Modifier.padding(end = 8.dp)) {
-                    OutlinedButton(onClick = { entityExpanded = true }) {
-                        Text(universalViewModel.entityOptions[entityIndex])
+                Text(
+                    text = "Izdane lične karte",
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+
+                Row(
+                    modifier = Modifier
+                        .widthIn(max = 400.dp)
+                        .padding(bottom = 16.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(Modifier.padding(end = 8.dp)) {
+                        OutlinedButton(onClick = { entityExpanded = true }) {
+                            Text(universalViewModel.entityOptions[entityIndex])
+                        }
+                        DropdownMenu(entityExpanded, { entityExpanded = false }) {
+                            universalViewModel.entityOptions.forEachIndexed { index, option ->
+                                DropdownMenuItem(text = { Text(option) }, onClick = {
+                                    universalViewModel.updateSelectionsID(index, cantonIndex)
+                                    entityExpanded = false
+                                })
+                            }
+                        }
                     }
-                    DropdownMenu(entityExpanded, { entityExpanded = false }) {
-                        universalViewModel.entityOptions.forEachIndexed { index, option ->
-                            DropdownMenuItem(text = { Text(option) }, onClick = {
-                                universalViewModel.updateSelectionsID(index, cantonIndex)
-                                entityExpanded = false
-                            })
+
+                    Box {
+                        OutlinedButton(
+                            onClick = { cantonExpanded = true },
+                            enabled = entityIndex == 0 || !isCantonDisabled
+                        ) {
+                            Text(universalViewModel.cantonOptions[cantonIndex])
+                        }
+                        DropdownMenu(cantonExpanded, { cantonExpanded = false }) {
+                            universalViewModel.cantonOptions.forEachIndexed { index, option ->
+                                DropdownMenuItem(text = { Text(option) }, onClick = {
+                                    universalViewModel.updateSelectionsID(entityIndex, index)
+                                    cantonExpanded = false
+                                })
+                            }
                         }
                     }
                 }
 
-                Box {
-                    OutlinedButton(
-                        onClick = { cantonExpanded = true },
-                        enabled = entityIndex == 0 || !isCantonDisabled
-                    ) {
-                        Text(universalViewModel.cantonOptions[cantonIndex])
+                if (isLoading && issuedIdCards.isEmpty()) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
                     }
-                    DropdownMenu(cantonExpanded, { cantonExpanded = false }) {
-                        universalViewModel.cantonOptions.forEachIndexed { index, option ->
-                            DropdownMenuItem(text = { Text(option) }, onClick = {
-                                universalViewModel.updateSelectionsID(entityIndex, index)
-                                cantonExpanded = false
-                            })
-                        }
+                } else if (issuedIdCards.isEmpty()) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text("Nema dostupnih podataka.")
                     }
-                }
-            }
+                } else {
+                    LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        items(issuedIdCards) { item ->
+                            val existingFavourite = favourites.find {
+                                (it.institution?.trim() ?: "").equals(item.institution?.trim() ?: "", ignoreCase = true) &&
+                                        (it.entity?.trim() ?: "").equals(item.entity?.trim() ?: "", ignoreCase = true) &&
+                                        (it.canton ?: "").trim().equals(item.canton?.trim() ?: "", ignoreCase = true) &&
+                                        (it.municipality?.trim() ?: "").equals(item.municipality?.trim() ?: "", ignoreCase = true) &&
+                                        it.total == item.total
+                            }
 
-            if (isLoading) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
-                }
-            } else if (issuedIdCards.isEmpty()) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("Nema dostupnih podataka.")
-                }
-            } else {
-                LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    items(issuedIdCards) { item ->
-                        val existingFavourite = favourites.find {
-                            (it.institution?.trim() ?: "").equals(item.institution?.trim() ?: "", ignoreCase = true) &&
-                                    (it.entity?.trim() ?: "").equals(item.entity?.trim() ?: "", ignoreCase = true) &&
-                                    (it.canton ?: "").trim().equals(item.canton?.trim() ?: "", ignoreCase = true) &&
-                                    (it.municipality?.trim() ?: "").equals(item.municipality?.trim() ?: "", ignoreCase = true) &&
-                                    it.total == item.total
-                        }
-
-                        CardItem(
-                            title = "Institucija: ${item.institution ?: ""}",
-                            subtitle = "Općina: ${item.municipality ?: ""}",
-                            expandedContent = """
-                                Entitet: ${item.entity ?: ""}
-                                Kanton: ${item.canton ?: ""}
-                                Ukupno izdato: ${item.total}
-                            """.trimIndent(),
-                            isFavouriteInitial = existingFavourite != null,
-                            showDelete = false,
-                            onFavouriteToggle = { newState ->
-                                if (newState && existingFavourite == null) {
-                                    universalViewModel.addToFavourites(
-                                        FavouritesItem(
-                                            institution = item.institution ?: "",
-                                            entity = item.entity ?: "",
-                                            canton = item.canton,
-                                            municipality = item.municipality ?: "",
-                                            total = item.total,
-                                            setId = 1
-                                        )
-                                    )
-                                } else if (!newState && existingFavourite != null) {
-                                    universalViewModel.removeFromFavourites(existingFavourite)
-                                }
-                            },
-                            onShareClick = {
-                                val shareText = """
-                                    Institucija: ${item.institution ?: ""}
-                                    Općina: ${item.municipality ?: ""}
+                            CardItem(
+                                title = "Institucija: ${item.institution ?: ""}",
+                                subtitle = "Općina: ${item.municipality ?: ""}",
+                                expandedContent = """
                                     Entitet: ${item.entity ?: ""}
                                     Kanton: ${item.canton ?: ""}
                                     Ukupno izdato: ${item.total}
-                                    Pogledaj više na: https://odp.gov.ba/izdane-licne
-                                """.trimIndent()
+                                """.trimIndent(),
+                                isFavouriteInitial = existingFavourite != null,
+                                showDelete = false,
+                                onFavouriteToggle = { newState ->
+                                    if (newState && existingFavourite == null) {
+                                        universalViewModel.addToFavourites(
+                                            FavouritesItem(
+                                                institution = item.institution ?: "",
+                                                entity = item.entity ?: "",
+                                                canton = item.canton,
+                                                municipality = item.municipality ?: "",
+                                                total = item.total,
+                                                setId = 1
+                                            )
+                                        )
+                                    } else if (!newState && existingFavourite != null) {
+                                        universalViewModel.removeFromFavourites(existingFavourite)
+                                    }
+                                },
+                                onShareClick = {
+                                    val shareText = """
+                                        Institucija: ${item.institution ?: ""}
+                                        Općina: ${item.municipality ?: ""}
+                                        Entitet: ${item.entity ?: ""}
+                                        Kanton: ${item.canton ?: ""}
+                                        Ukupno izdato: ${item.total}
+                                        Pogledaj više na: https://odp.gov.ba/izdane-licne
+                                    """.trimIndent()
 
-                                Share.shareData(context, shareText)
-                            }
-                        )
+                                    Share.shareData(context, shareText)
+                                }
+                            )
+                        }
                     }
                 }
             }

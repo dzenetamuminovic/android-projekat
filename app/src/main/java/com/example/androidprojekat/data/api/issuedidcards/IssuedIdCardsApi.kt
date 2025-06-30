@@ -7,7 +7,7 @@ import retrofit2.http.POST
 interface IssuedIdCardsApi {
     @Headers(
         "Accept: application/json",
-        "Authorization: Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIyMTAwIiwibmJmIjoxNzUxMjA1NjUxLCJleHAiOjE3NTEyOTIwNTEsImlhdCI6MTc1MTIwNTY1MX0.RjSEQ3BYoiXrfXmv0qobuW8LgomfEIrxA5FQ_ndGNnCbrZ-5xf71uIhmLBbxLlIo6IuJEI8CHFgjrHj-S829uA"
+        "Authorization: Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIyMTAwIiwibmJmIjoxNzUxMzAxMjAyLCJleHAiOjE3NTEzODc2MDIsImlhdCI6MTc1MTMwMTIwMn0.F1DwF6rojZyWwFIfNGPxpgi8IemkeVWhe7goDBIufhTLB60v2V6gfBsX2_wthNbSme6SBzdlmF4JkKLTdKsP0A"
     )
     @POST("IssuedIDCards/list")
     suspend fun getIssuedIdCards(

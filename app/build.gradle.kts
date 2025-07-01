@@ -5,7 +5,6 @@ plugins {
     id("org.jetbrains.kotlin.kapt")
 }
 
-
 android {
     namespace = "com.example.androidprojekat"
     compileSdk = 35
@@ -58,11 +57,11 @@ dependencies {
     // Compose Icons - Extended Material Icons
     implementation("androidx.compose.material:material-icons-extended")
 
-    // Swipe refresh
-    implementation ("com.google.accompanist:accompanist-swiperefresh:0.28.0")
+    // Foundation za pullRefresh
+    implementation(libs.androidx.foundation)
 
     // Chartovi
-    implementation ("com.github.PhilJay:MPAndroidChart:v3.1.0")
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -72,6 +71,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

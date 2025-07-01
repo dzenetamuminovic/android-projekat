@@ -1,45 +1,41 @@
 package com.example.androidprojekat.repository
 
 import android.content.Context
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
-import com.example.androidprojekat.data.RetrofitInstance
-import com.example.androidprojekat.data.api.issuedidcards.IssuedIdCardInfo
-import com.example.androidprojekat.data.api.issuedidcards.IssuedIdCardRequest
+import com.example.androidprojekat.data.api.expireddlcards.ExpiredDLCardInfo
+import com.example.androidprojekat.data.api.expireddlcards.ExpiredDLCardRequest
+import com.example.androidprojekat.data.api.expireddlcards.ExpiredDLCardResponse
+import com.example.androidprojekat.data.api.expireddlcards.ExpiredDLCardsApi
 import com.example.androidprojekat.data.local.DatabaseProvider
-import com.example.androidprojekat.data.local.issuedIdcards.IssuedIdCardEntity
+import com.example.androidprojekat.data.local.expiredlcards.ExpiredDLCardEntity
+import com.example.androidprojekat.utils.NetworkUtils
 
-class IssuedIdCardsRepository(private val context: Context) {
+class ExpiredDLCardsRepository(
+    private val api: ExpiredDLCardsApi,
+    private val context: Context
+) {
 
-    private val dao = DatabaseProvider.getDatabase(context).issuedIdCardsDao()
+    private val dao = DatabaseProvider.getDatabase(context).expiredDLCardsDao()
 
-    suspend fun getIssuedIdCards(request: IssuedIdCardRequest): List<IssuedIdCardInfo> {
-        val response = RetrofitInstance.issuedIdCardsApi.getIssuedIdCards(request)
-        return response.result
+    suspend fun getExpiredDLCards(request: ExpiredDLCardRequest): ExpiredDLCardResponse {
+        return api.getExpiredDLCards(request)
     }
 
-    suspend fun saveToLocal(data: List<IssuedIdCardInfo>) {
+    suspend fun saveToLocal(data: List<ExpiredDLCardInfo>) {
         val entities = data.map {
-            IssuedIdCardEntity(
+            ExpiredDLCardEntity(
                 entity = it.entity,
                 canton = it.canton,
                 municipality = it.municipality,
                 institution = it.institution,
-                year = it.year,
-                month = it.month,
                 dateUpdate = it.dateUpdate,
-                issuedFirstTimeMaleTotal = it.issuedFirstTimeMaleTotal,
-                replacedMaleTotal = it.replacedMaleTotal,
-                issuedFirstTimeFemaleTotal = it.issuedFirstTimeFemaleTotal,
-                replacedFemaleTotal = it.replacedFemaleTotal,
-                total = it.total
+                maleTotal = it.maleTotal,
+                femaleTotal = it.femaleTotal
             )
         }
         dao.insertAll(entities)
     }
 
-
-    suspend fun loadFromLocal(): List<IssuedIdCardEntity> {
+    suspend fun loadFromLocal(): List<ExpiredDLCardEntity> {
         return dao.getAll()
     }
 
@@ -48,10 +44,6 @@ class IssuedIdCardsRepository(private val context: Context) {
     }
 
     fun hasInternetConnection(): Boolean {
-        val connectivityManager =
-            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val activeNetwork = connectivityManager.activeNetwork ?: return false
-        val capabilities = connectivityManager.getNetworkCapabilities(activeNetwork) ?: return false
-        return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+        return NetworkUtils.hasInternetConnection(context)
     }
 }

@@ -16,10 +16,9 @@ import com.example.androidprojekat.R
 import com.example.androidprojekat.viewmodel.ExpiredDLCardsViewModel
 import com.example.androidprojekat.viewmodel.UniversalViewModel
 import com.example.androidprojekat.viewmodel.FavouritesViewModel
-import com.example.androidprojekat.ui.components.CardItem
 import com.example.androidprojekat.ui.components.BottomBar
+import com.example.androidprojekat.ui.components.CardItem
 import com.example.androidprojekat.utils.Share
-import com.google.accompanist.swiperefresh.*
 import com.example.androidprojekat.data.local.favourites.FavouritesItem
 
 @Composable
@@ -32,8 +31,6 @@ fun ExpiredDLCardsScreen(
     val context = LocalContext.current
     val expiredDLCards by viewModel.expiredDLCards.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
-    val isRefreshing by viewModel.isRefreshing.collectAsState()
-
     val entityIndex by universalViewModel.selectedEntityIndexDL.collectAsState()
     val cantonIndex by universalViewModel.selectedCantonIndexDL.collectAsState()
     val selectedEntity = universalViewModel.entityOptions[entityIndex]
@@ -53,146 +50,138 @@ fun ExpiredDLCardsScreen(
 
     Scaffold(
         bottomBar = {
-            BottomBar(navController = navController, favouritesRoute = "favourites", homeRoute = "home")
+            BottomBar(navController = navController, favouritesRoute = "favourites", homeRoute = "home", statisticsRoute = "statistics")
         }
     ) { innerPadding ->
 
-        SwipeRefresh(
-            state = rememberSwipeRefreshState(isRefreshing),
-            onRefresh = { viewModel.refreshExpiredDLCards() },
+        Column(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            Column(
+            Text(
+                text = stringResource(id = R.string.vozackedozvole),
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+
+            Row(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .widthIn(max = 400.dp)
+                    .padding(bottom = 16.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = stringResource(id = R.string.vozackedozvole),
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-
-                Row(
-                    modifier = Modifier
-                        .widthIn(max = 400.dp)
-                        .padding(bottom = 16.dp),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(Modifier.padding(end = 8.dp)) {
-                        OutlinedButton(onClick = { entityExpanded = true }) {
-                            Text(universalViewModel.entityOptions[entityIndex])
-                        }
-                        DropdownMenu(
-                            expanded = entityExpanded,
-                            onDismissRequest = { entityExpanded = false }
-                        ) {
-                            universalViewModel.entityOptions.forEachIndexed { index, option ->
-                                DropdownMenuItem(
-                                    text = { Text(option) },
-                                    onClick = {
-                                        universalViewModel.updateSelectionsDL(index, cantonIndex)
-                                        entityExpanded = false
-                                    }
-                                )
-                            }
-                        }
+                Box(Modifier.padding(end = 8.dp)) {
+                    OutlinedButton(onClick = { entityExpanded = true }) {
+                        Text(universalViewModel.entityOptions[entityIndex])
                     }
-
-                    Box {
-                        OutlinedButton(
-                            onClick = { cantonExpanded = true },
-                            enabled = entityIndex == 0 || !isCantonDisabled
-                        ) {
-                            Text(universalViewModel.cantonOptions[cantonIndex])
-                        }
-                        DropdownMenu(
-                            expanded = cantonExpanded,
-                            onDismissRequest = { cantonExpanded = false }
-                        ) {
-                            universalViewModel.cantonOptions.forEachIndexed { index, option ->
-                                DropdownMenuItem(
-                                    text = { Text(option) },
-                                    onClick = {
-                                        universalViewModel.updateSelectionsDL(entityIndex, index)
-                                        cantonExpanded = false
-                                    }
-                                )
-                            }
+                    DropdownMenu(
+                        expanded = entityExpanded,
+                        onDismissRequest = { entityExpanded = false }
+                    ) {
+                        universalViewModel.entityOptions.forEachIndexed { index, option ->
+                            DropdownMenuItem(
+                                text = { Text(option) },
+                                onClick = {
+                                    universalViewModel.updateSelectionsDL(index, cantonIndex)
+                                    entityExpanded = false
+                                }
+                            )
                         }
                     }
                 }
 
-                if (isLoading && expiredDLCards.isEmpty()) {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator()
+                Box {
+                    OutlinedButton(
+                        onClick = { cantonExpanded = true },
+                        enabled = entityIndex == 0 || !isCantonDisabled
+                    ) {
+                        Text(universalViewModel.cantonOptions[cantonIndex])
                     }
-                } else if (expiredDLCards.isEmpty()) {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text(text = stringResource(id = R.string.noresults))
+                    DropdownMenu(
+                        expanded = cantonExpanded,
+                        onDismissRequest = { cantonExpanded = false }
+                    ) {
+                        universalViewModel.cantonOptions.forEachIndexed { index, option ->
+                            DropdownMenuItem(
+                                text = { Text(option) },
+                                onClick = {
+                                    universalViewModel.updateSelectionsDL(entityIndex, index)
+                                    cantonExpanded = false
+                                }
+                            )
+                        }
                     }
+                }
+            }
 
-                } else {
-                    LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        items(expiredDLCards) { item ->
-                            val total = item.maleTotal + item.femaleTotal
-                            val existingFavourite = favourites.find {
-                                (it.institution?.trim() ?: "").equals(item.institution?.trim() ?: "", ignoreCase = true) &&
-                                        (it.entity?.trim() ?: "").equals(item.entity?.trim() ?: "", ignoreCase = true) &&
-                                        (it.canton ?: "").trim().equals(item.canton?.trim() ?: "", ignoreCase = true) &&
-                                        (it.municipality?.trim() ?: "").equals(item.municipality?.trim() ?: "", ignoreCase = true) &&
-                                        it.total == total
-                            }
+            if (isLoading && expiredDLCards.isEmpty()) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+            } else if (expiredDLCards.isEmpty()) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(text = stringResource(id = R.string.noresults))
+                }
+            } else {
+                LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    items(expiredDLCards) { item ->
+                        val total = item.maleTotal + item.femaleTotal
+                        val existingFavourite = favourites.find {
+                            (it.institution?.trim() ?: "").equals(item.institution?.trim() ?: "", ignoreCase = true) &&
+                                    (it.entity?.trim() ?: "").equals(item.entity?.trim() ?: "", ignoreCase = true) &&
+                                    (it.canton ?: "").trim().equals(item.canton?.trim() ?: "", ignoreCase = true) &&
+                                    (it.municipality?.trim() ?: "").equals(item.municipality?.trim() ?: "", ignoreCase = true) &&
+                                    it.total == total
+                        }
 
-                            CardItem(
-                                title = "Institucija: ${item.institution ?: ""}",
-                                subtitle = "Općina: ${item.municipality ?: ""}",
-                                expandedContent = """
+                        CardItem(
+                            title = "Institucija: ${item.institution ?: ""}",
+                            subtitle = "Općina: ${item.municipality ?: ""}",
+                            expandedContent = """
+                                Entitet: ${item.entity ?: ""}
+                                Kanton: ${item.canton ?: ""}
+                                Muškarci: ${item.maleTotal}
+                                Žene: ${item.femaleTotal}
+                                Ukupno isteklih dozvola: $total
+                            """.trimIndent(),
+                            isFavouriteInitial = existingFavourite != null,
+                            showDelete = false,
+                            onFavouriteToggle = { newState ->
+                                if (newState && existingFavourite == null) {
+                                    favouritesViewModel.addFavourites(
+                                        FavouritesItem(
+                                            institution = item.institution ?: "",
+                                            entity = item.entity ?: "",
+                                            canton = item.canton,
+                                            municipality = item.municipality ?: "",
+                                            total = total,
+                                            setId = 2
+                                        )
+                                    )
+                                } else if (!newState && existingFavourite != null) {
+                                    favouritesViewModel.removeFavourites(existingFavourite)
+                                }
+                            },
+                            onShareClick = {
+                                val shareText = """
+                                    Institucija: ${item.institution ?: ""}
+                                    Općina: ${item.municipality ?: ""}
                                     Entitet: ${item.entity ?: ""}
                                     Kanton: ${item.canton ?: ""}
                                     Muškarci: ${item.maleTotal}
                                     Žene: ${item.femaleTotal}
                                     Ukupno isteklih dozvola: $total
-                                """.trimIndent(),
-                                isFavouriteInitial = existingFavourite != null,
-                                showDelete = false,
-                                onFavouriteToggle = { newState ->
-                                    if (newState && existingFavourite == null) {
-                                        favouritesViewModel.addFavourites(
-                                            FavouritesItem(
-                                                institution = item.institution ?: "",
-                                                entity = item.entity ?: "",
-                                                canton = item.canton,
-                                                municipality = item.municipality ?: "",
-                                                total = total,
-                                                setId = 2
-                                            )
-                                        )
-                                    } else if (!newState && existingFavourite != null) {
-                                        favouritesViewModel.removeFavourites(existingFavourite)
-                                    }
-                                },
-                                onShareClick = {
-                                    val shareText = """
-                                        Institucija: ${item.institution ?: ""}
-                                        Općina: ${item.municipality ?: ""}
-                                        Entitet: ${item.entity ?: ""}
-                                        Kanton: ${item.canton ?: ""}
-                                        Muškarci: ${item.maleTotal}
-                                        Žene: ${item.femaleTotal}
-                                        Ukupno isteklih dozvola: $total
-                                        Pogledaj više na: https://odp.gov.ba/istekle-vozacke
-                                    """.trimIndent()
+                                    Pogledaj više na: https://odp.gov.ba/istekle-vozacke
+                                """.trimIndent()
 
-                                    Share.shareData(context, shareText)
-                                }
-                            )
-                        }
+                                Share.shareData(context, shareText)
+                            }
+                        )
                     }
                 }
             }

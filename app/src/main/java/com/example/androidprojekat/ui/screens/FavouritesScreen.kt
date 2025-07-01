@@ -44,7 +44,7 @@ fun FavouritesScreen(universalViewModel: UniversalViewModel, navController: NavC
 
     Scaffold(
         bottomBar = {
-            BottomBar(navController = navController, favouritesRoute = "favourites", homeRoute = "home")
+            BottomBar(navController = navController, favouritesRoute = "favourites", homeRoute = "home", statisticsRoute = "statistics")
         }
     ) { innerPadding ->
         Column(

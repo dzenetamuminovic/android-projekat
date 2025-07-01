@@ -10,44 +10,48 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.androidprojekat.ui.components.BottomBar
+import com.example.androidprojekat.viewmodel.ExpiredDLCardsViewModel
+import com.example.androidprojekat.viewmodel.UniversalViewModel
+import com.example.androidprojekat.viewmodel.Factory.ExpiredDLCardsViewModelFactory
+import com.example.androidprojekat.repository.ExpiredDLCardsRepository
+import com.example.androidprojekat.data.RetrofitInstance
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.components.Description
 import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
-import com.example.androidprojekat.viewmodel.ExpiredDLCardsViewModel
-import com.example.androidprojekat.viewmodel.UniversalViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.androidprojekat.viewmodel.Factory.ExpiredDLCardsViewModelFactory
-import com.example.androidprojekat.repository.ExpiredDLCardsRepository
-import com.example.androidprojekat.data.RetrofitInstance
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BarChartScreen(
     navController: NavController,
-    universalViewModel: UniversalViewModel
-) {
+    universalViewModel: UniversalViewModel,
+    viewModel: ExpiredDLCardsViewModel
+)
+ {
     val context = LocalContext.current
-
-    val repository = ExpiredDLCardsRepository(RetrofitInstance.expiredDLCardsApi, context)
-    val factory = ExpiredDLCardsViewModelFactory(repository, universalViewModel)
-    val viewModel: ExpiredDLCardsViewModel = viewModel(factory = factory)
-
     val expiredDLCards by viewModel.expiredDLCards.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
-
+    val isRefreshing by viewModel.isRefreshing.collectAsState()
+    val dataSource by viewModel.dataSource.collectAsState()
     val entityIndex by universalViewModel.selectedEntityIndexDL.collectAsState()
     val cantonIndex by universalViewModel.selectedCantonIndexDL.collectAsState()
 
     LaunchedEffect(entityIndex, cantonIndex) {
-        viewModel.fetchExpiredDLCards()
+        viewModel.fetchExpiredDLCards(forceRefresh = true)
     }
 
     Scaffold(
         bottomBar = {
-            BottomBar(navController = navController, favouritesRoute = "favourites", homeRoute = "home")
+            BottomBar(
+                navController = navController,
+                favouritesRoute = "favourites",
+                homeRoute = "home",
+                statisticsRoute = "statistics"
+            )
         }
     ) { innerPadding ->
 
@@ -58,6 +62,14 @@ fun BarChartScreen(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
+            Text(
+                text = "Ukupno podataka: ${expiredDLCards.size} ($dataSource)",
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+
             Text(
                 text = "Broj isteklih vozačkih dozvola po entitetima",
                 style = MaterialTheme.typography.titleMedium,
@@ -70,9 +82,7 @@ fun BarChartScreen(
             } else if (expiredDLCards.isEmpty()) {
                 Text(text = "Nema podataka za prikaz.")
             } else {
-                val entityCounts = expiredDLCards
-                    .groupingBy { it.entity }
-                    .eachCount()
+                val entityCounts = expiredDLCards.groupingBy { it.entity }.eachCount()
 
                 val labels = entityCounts.keys.map {
                     when (it.trim().lowercase()) {
@@ -123,7 +133,7 @@ fun BarChartScreen(
                 Divider(modifier = Modifier.padding(vertical = 8.dp))
 
                 Text(
-                    text = "Polna struktura važećih vozačkih dozvola",
+                    text = "Polna struktura isteklih vozačkih dozvola",
                     style = MaterialTheme.typography.titleMedium,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(bottom = 8.dp)

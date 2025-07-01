@@ -27,7 +27,7 @@ fun NavGraph(
 ) {
     NavHost(
         navController = navController,
-        startDestination = "home"
+        startDestination = "splash"
     ) {
         composable("splash") {
             SplashScreen(navController = navController)
@@ -62,7 +62,10 @@ fun NavGraph(
             )
         }
         composable("statistics") {
-            BarChartScreen(navController = navController, universalViewModel = universalViewModel)
+            BarChartScreen(navController = navController,
+                universalViewModel = universalViewModel,
+                viewModel = expiredDLCardsViewModel
+            )
         }
 
     }

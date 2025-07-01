@@ -52,51 +52,44 @@ class IssuedIdCardsViewModel(
                     _issuedIdCards.value = apiData
                 } catch (e: Exception) {
                     println("Greška pri dohvaćanju sa API-ja: ${e.message}")
-                    _issuedIdCards.value = repository.loadFromLocal().map {
-                        IssuedIdCardInfo(
-                            entity = it.entity,
-                            canton = it.canton ?: "",
-                            municipality = it.municipality,
-                            institution = it.institution,
-                            year = it.year,
-                            month = it.month,
-                            dateUpdate = it.dateUpdate,
-                            issuedFirstTimeMaleTotal = it.issuedFirstTimeMaleTotal,
-                            replacedMaleTotal = it.replacedMaleTotal,
-                            issuedFirstTimeFemaleTotal = it.issuedFirstTimeFemaleTotal,
-                            replacedFemaleTotal = it.replacedFemaleTotal,
-                            total = it.total
-                        )
-                    }
+                    loadFromLocalAndSet()
                 }
             } else {
-                println("Nema interneta — učitavam iz lokalne baze.")
-                _issuedIdCards.value = repository.loadFromLocal().map {
-                    IssuedIdCardInfo(
-                        entity = it.entity,
-                        canton = it.canton ?: "",
-                        municipality = it.municipality,
-                        institution = it.institution,
-                        year = it.year,
-                        month = it.month,
-                        dateUpdate = it.dateUpdate,
-                        issuedFirstTimeMaleTotal = it.issuedFirstTimeMaleTotal,
-                        replacedMaleTotal = it.replacedMaleTotal,
-                        issuedFirstTimeFemaleTotal = it.issuedFirstTimeFemaleTotal,
-                        replacedFemaleTotal = it.replacedFemaleTotal,
-                        total = it.total
-                    )
-                }
+                println("Nema interneta — učitavam iz baze...")
+                loadFromLocalAndSet()
             }
 
             _isLoading.value = false
         }
     }
 
+    private suspend fun loadFromLocalAndSet() {
+        val localData = repository.loadFromLocal().map {
+            IssuedIdCardInfo(
+                entity = it.entity,
+                canton = it.canton ?: "",
+                municipality = it.municipality,
+                institution = it.institution,
+                year = it.year,
+                month = it.month,
+                dateUpdate = it.dateUpdate,
+                issuedFirstTimeMaleTotal = it.issuedFirstTimeMaleTotal,
+                replacedMaleTotal = it.replacedMaleTotal,
+                issuedFirstTimeFemaleTotal = it.issuedFirstTimeFemaleTotal,
+                replacedFemaleTotal = it.replacedFemaleTotal,
+                total = it.total
+            )
+        }
+        println("Podaci iz baze učitani. Ukupno: ${localData.size}")
+        _issuedIdCards.value = localData
+    }
+
     fun refreshIssuedIdCards() {
         viewModelScope.launch {
             _isRefreshing.value = true
-            fetchIssuedIdCards(forceRefresh = true)
+            val hasInternet = repository.hasInternetConnection()
+            println("Refresh — ima interneta: $hasInternet")
+            fetchIssuedIdCards(forceRefresh = hasInternet)
             _isRefreshing.value = false
         }
     }

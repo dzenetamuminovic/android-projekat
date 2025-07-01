@@ -49,7 +49,8 @@ fun MainScreen() {
 
     Scaffold(
         topBar = {
-            if (currentRoute != "splash" && currentRoute != "onboarding") {
+            if (currentRoute != "splash" &&
+                currentRoute != "onboarding") {
                 TopBar(
                     title = "IDDEEA OpenData",
                     onBackClick = {
@@ -58,6 +59,13 @@ fun MainScreen() {
                             navController.navigate("home") {
                                 popUpTo("home") { inclusive = false }
                             }
+                        }
+                    },
+                    onRefreshClick = {
+                        when (currentRoute) {
+                            "expired_dl_cards" -> expiredDLCardsViewModel.refreshExpiredDLCards()
+                            "issued_id_cards" -> issuedIdCardsViewModel.refreshIssuedIdCards()
+                            "statistics" -> expiredDLCardsViewModel.refreshExpiredDLCards()
                         }
                     }
                 )

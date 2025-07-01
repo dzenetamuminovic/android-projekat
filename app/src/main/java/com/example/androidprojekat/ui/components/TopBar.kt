@@ -3,6 +3,7 @@ package com.example.androidprojekat.ui.components
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -15,14 +16,15 @@ import com.example.androidprojekat.ui.theme.PrimaryTextBlue
 @Composable
 fun TopBar(
     title: String,
-    onBackClick: (() -> Unit)? = null
+    onBackClick: (() -> Unit)? = null,
+    onRefreshClick: (() -> Unit)? = null
 ) {
     TopAppBar(
         title = {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(end = if (onBackClick != null) 48.dp else 0.dp), // Rezerva prostor za strelicu
+                    .padding(horizontal = 48.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
@@ -31,6 +33,20 @@ fun TopBar(
                     style = MaterialTheme.typography.titleLarge,
                     textAlign = TextAlign.Center
                 )
+            }
+        },
+        navigationIcon = {
+            onBackClick?.let {
+                IconButton(onClick = it) {
+                    Icon(Icons.Filled.ArrowBack, contentDescription = "Nazad")
+                }
+            }
+        },
+        actions = {
+            onRefreshClick?.let {
+                IconButton(onClick = it) {
+                    Icon(Icons.Filled.Refresh, contentDescription = "Osvježi")
+                }
             }
         }
     )

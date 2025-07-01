@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.androidprojekat.R
 import com.example.androidprojekat.ui.theme.PrimaryTextBlue
-import com.example.androidprojekat.ui.theme.DarkBlue
+import androidx.compose.material.icons.filled.Leaderboard
 import com.example.androidprojekat.ui.theme.StarYellow
 
 @Composable
@@ -80,7 +80,7 @@ fun HomeScreen(navController: NavController) {
                 }
                 MenuBox(
                     text = stringResource(id = R.string.statistika),
-                    icon = Icons.Default.Star
+                    icon = Icons.Default.Leaderboard
                 ) {
                     navController.navigate("statistics")
                 }

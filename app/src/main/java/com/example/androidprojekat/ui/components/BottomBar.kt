@@ -4,9 +4,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Leaderboard
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -17,7 +17,7 @@ import com.example.androidprojekat.ui.theme.PrimaryTextBlue
 import com.example.androidprojekat.ui.theme.TopBarColor
 
 @Composable
-fun BottomBar(navController: NavController, favouritesRoute: String, homeRoute: String) {
+fun BottomBar(navController: NavController, favouritesRoute: String, homeRoute: String, statisticsRoute: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -28,10 +28,10 @@ fun BottomBar(navController: NavController, favouritesRoute: String, homeRoute: 
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
 
-        IconButton(onClick = { navController.popBackStack() }) {
+        IconButton(onClick = { navController.navigate(statisticsRoute) }) {
             Icon(
-                imageVector = Icons.Filled.ArrowBack,
-                contentDescription = "Nazad",
+                imageVector = Icons.Filled.Leaderboard,
+                contentDescription = "Statistika",
                 tint = PrimaryTextBlue
             )
         }

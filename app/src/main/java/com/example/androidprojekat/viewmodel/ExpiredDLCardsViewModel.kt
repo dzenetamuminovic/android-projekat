@@ -23,6 +23,9 @@ class ExpiredDLCardsViewModel(
     private val _isRefreshing = MutableStateFlow(false)
     val isRefreshing: StateFlow<Boolean> = _isRefreshing
 
+    private val _dataSource = MutableStateFlow("Nepoznat izvor")
+    val dataSource: StateFlow<String> = _dataSource
+
     init {
         fetchExpiredDLCards()
     }
@@ -49,47 +52,43 @@ class ExpiredDLCardsViewModel(
                     repository.clearLocalData()
                     repository.saveToLocal(apiData.result)
                     _expiredDLCards.value = apiData.result
+                    _dataSource.value = "Podaci sa interneta"
                 } catch (e: Exception) {
                     println("Greška pri dohvaćanju sa interneta: ${e.message}")
-                    val localData = repository.loadFromLocal().map {
-                        ExpiredDLCardInfo(
-                            entity = it.entity,
-                            canton = it.canton ?: "",
-                            municipality = it.municipality,
-                            institution = it.institution,
-                            dateUpdate = it.dateUpdate,
-                            maleTotal = it.maleTotal,
-                            femaleTotal = it.femaleTotal
-                        )
-                    }
-                    println("Koristim podatke iz LOKALNE BAZE. Ukupno: ${localData.size}")
-                    _expiredDLCards.value = localData
+                    loadFromLocalAndSet()
                 }
             } else {
-                println("Nema interneta — učitavam podatke iz LOKALNE BAZE...")
-                val localData = repository.loadFromLocal().map {
-                    ExpiredDLCardInfo(
-                        entity = it.entity,
-                        canton = it.canton ?: "",
-                        municipality = it.municipality,
-                        institution = it.institution,
-                        dateUpdate = it.dateUpdate,
-                        maleTotal = it.maleTotal,
-                        femaleTotal = it.femaleTotal
-                    )
-                }
-                println("Podaci iz baze učitani. Ukupno: ${localData.size}")
-                _expiredDLCards.value = localData
+                println("Nema interneta — učitavam podatke iz baze...")
+                loadFromLocalAndSet()
             }
 
             _isLoading.value = false
         }
     }
 
+    private suspend fun loadFromLocalAndSet() {
+        val localData = repository.loadFromLocal().map {
+            ExpiredDLCardInfo(
+                entity = it.entity,
+                canton = it.canton ?: "",
+                municipality = it.municipality,
+                institution = it.institution,
+                dateUpdate = it.dateUpdate,
+                maleTotal = it.maleTotal,
+                femaleTotal = it.femaleTotal
+            )
+        }
+        println("Podaci iz baze učitani. Ukupno: ${localData.size}")
+        _expiredDLCards.value = localData
+        _dataSource.value = "Podaci iz baze"
+    }
+
     fun refreshExpiredDLCards() {
         viewModelScope.launch {
             _isRefreshing.value = true
-            fetchExpiredDLCards(forceRefresh = true)
+            val hasInternet = repository.hasInternetConnection()
+            println("Refresh — ima interneta: $hasInternet")
+            fetchExpiredDLCards(forceRefresh = hasInternet)
             _isRefreshing.value = false
         }
     }

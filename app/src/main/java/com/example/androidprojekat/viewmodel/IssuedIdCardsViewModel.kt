@@ -21,7 +21,6 @@ class IssuedIdCardsViewModel(
     val isLoading: StateFlow<Boolean> = _isLoading
 
     private val _isRefreshing = MutableStateFlow(false)
-    val isRefreshing: StateFlow<Boolean> = _isRefreshing
 
     init {
         fetchIssuedIdCards()

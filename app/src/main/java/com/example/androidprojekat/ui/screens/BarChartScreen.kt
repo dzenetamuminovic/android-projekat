@@ -10,14 +10,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.androidprojekat.ui.components.BottomBar
 import com.example.androidprojekat.viewmodel.ExpiredDLCardsViewModel
 import com.example.androidprojekat.viewmodel.UniversalViewModel
-import com.example.androidprojekat.viewmodel.Factory.ExpiredDLCardsViewModelFactory
-import com.example.androidprojekat.repository.ExpiredDLCardsRepository
-import com.example.androidprojekat.data.RetrofitInstance
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.components.Description
@@ -35,7 +31,6 @@ fun BarChartScreen(
     val context = LocalContext.current
     val expiredDLCards by viewModel.expiredDLCards.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
-    val isRefreshing by viewModel.isRefreshing.collectAsState()
     val dataSource by viewModel.dataSource.collectAsState()
     val entityIndex by universalViewModel.selectedEntityIndexDL.collectAsState()
     val cantonIndex by universalViewModel.selectedCantonIndexDL.collectAsState()

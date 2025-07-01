@@ -7,10 +7,7 @@ import kotlinx.coroutines.flow.StateFlow
 import com.example.androidprojekat.data.local.favourites.FavouritesItem
 import com.example.androidprojekat.repository.ExpiredDLCardsRepository
 
-class UniversalViewModel(
-    private val favouritesRepository: FavouritesRepository,
-    expiredDLCardsRepository: ExpiredDLCardsRepository
-) : ViewModel() {
+class UniversalViewModel() : ViewModel() {
 
     private val _favourites = MutableStateFlow<List<FavouritesItem>>(emptyList())
     val favourites: StateFlow<List<FavouritesItem>> = _favourites

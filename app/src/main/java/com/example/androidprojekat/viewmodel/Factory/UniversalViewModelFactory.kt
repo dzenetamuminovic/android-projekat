@@ -13,7 +13,7 @@ class UniversalViewModelFactory(
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(UniversalViewModel::class.java)) {
-            return UniversalViewModel(favouritesRepository, expiredDLCardsRepository) as T
+            return UniversalViewModel() as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

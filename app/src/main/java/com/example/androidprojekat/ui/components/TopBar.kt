@@ -32,16 +32,6 @@ fun TopBar(
                     textAlign = TextAlign.Center
                 )
             }
-        },
-        navigationIcon = {
-            if (onBackClick != null) {
-                IconButton(onClick = onBackClick) {
-                    Icon(
-                        imageVector = Icons.Default.ArrowBack,
-                        contentDescription = "Nazad"
-                    )
-                }
-            }
         }
     )
 }

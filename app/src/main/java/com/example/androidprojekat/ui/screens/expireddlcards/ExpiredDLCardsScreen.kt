@@ -19,7 +19,6 @@ import com.example.androidprojekat.viewmodel.FavouritesViewModel
 import com.example.androidprojekat.ui.components.CardItem
 import com.example.androidprojekat.ui.components.BottomBar
 import com.example.androidprojekat.utils.Share
-import com.example.androidprojekat.data.api.expireddlcards.ExpiredDLCardRequest
 import com.google.accompanist.swiperefresh.*
 import com.example.androidprojekat.data.local.favourites.FavouritesItem
 
@@ -31,8 +30,10 @@ fun ExpiredDLCardsScreen(
     navController: NavController
 ) {
     val context = LocalContext.current
-    val expiredDLCards by universalViewModel.expiredDLCards.collectAsState()
-    val isLoading by universalViewModel.isLoading.collectAsState()
+    val expiredDLCards by viewModel.expiredDLCards.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val isRefreshing by viewModel.isRefreshing.collectAsState()
+
     val entityIndex by universalViewModel.selectedEntityIndexDL.collectAsState()
     val cantonIndex by universalViewModel.selectedCantonIndexDL.collectAsState()
     val selectedEntity = universalViewModel.entityOptions[entityIndex]
@@ -42,15 +43,8 @@ fun ExpiredDLCardsScreen(
     var entityExpanded by remember { mutableStateOf(false) }
     var cantonExpanded by remember { mutableStateOf(false) }
 
-    val isRefreshing by viewModel.isRefreshing.collectAsState()
-
     LaunchedEffect(entityIndex, cantonIndex) {
-        val request = ExpiredDLCardRequest(
-            updateDate = "2025-06-03",
-            entityId = entityIndex,
-            cantonId = cantonIndex
-        )
-        universalViewModel.fetchExpiredDLCards(request)
+        viewModel.fetchExpiredDLCards()
     }
 
     LaunchedEffect(Unit) {

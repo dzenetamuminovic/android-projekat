@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import kotlinx.coroutines.delay
 import com.example.androidprojekat.R
+import com.example.androidprojekat.ui.theme.StarYellow
 
 @Composable
 fun SplashScreen(navController: NavController) {
@@ -48,7 +49,7 @@ fun SplashScreen(navController: NavController) {
             Text(
                 text = stringResource(id = R.string.welcome),
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onBackground
+                color = StarYellow
             )
         }
     }

@@ -15,5 +15,5 @@ val FWhite = Color(0xFFFFFFFF)
 val PrimaryTextBlue = Color(0xFF004AAD)
 val TopBarColor = Color(0xFFF0F4F7)
 val FavouriteBackground = Color(0xFFFFFBE8)
-val FavouriteText = Color(0xFF0A0A40)
+val StarYellow = Color(0xFFF9D92E)
 

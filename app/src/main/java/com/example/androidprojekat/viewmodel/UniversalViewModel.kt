@@ -1,29 +1,19 @@
 package com.example.androidprojekat.viewmodel
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.example.androidprojekat.data.api.expireddlcards.ExpiredDLCardInfo
-import com.example.androidprojekat.data.api.expireddlcards.ExpiredDLCardRequest
-import com.example.androidprojekat.repository.ExpiredDLCardsRepository
 import com.example.androidprojekat.repository.FavouritesRepository
-import com.example.androidprojekat.data.local.favourites.FavouritesItem
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
+import com.example.androidprojekat.data.local.favourites.FavouritesItem
+import com.example.androidprojekat.repository.ExpiredDLCardsRepository
 
 class UniversalViewModel(
     private val favouritesRepository: FavouritesRepository,
-    private val expiredDLCardsRepository: ExpiredDLCardsRepository
+    expiredDLCardsRepository: ExpiredDLCardsRepository
 ) : ViewModel() {
 
     private val _favourites = MutableStateFlow<List<FavouritesItem>>(emptyList())
     val favourites: StateFlow<List<FavouritesItem>> = _favourites
-
-    private val _expiredDLCards = MutableStateFlow<List<ExpiredDLCardInfo>>(emptyList())
-    val expiredDLCards: StateFlow<List<ExpiredDLCardInfo>> = _expiredDLCards
-
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading
 
     val entityOptions = listOf("Entiteti", "Federacija BiH", "Republika Srpska", "Brčko Distrikt")
     val cantonOptions = listOf(
@@ -57,19 +47,4 @@ class UniversalViewModel(
         selectedEntityIndexDL.value = entity
         selectedCantonIndexDL.value = canton
     }
-
-    fun fetchExpiredDLCards(request: ExpiredDLCardRequest) {
-        viewModelScope.launch {
-            _isLoading.value = true
-            try {
-                val response = expiredDLCardsRepository.getExpiredDLCards(request)
-                _expiredDLCards.value = response.result
-            } catch (e: Exception) {
-                _expiredDLCards.value = emptyList()
-            } finally {
-                _isLoading.value = false
-            }
-        }
-    }
-
 }

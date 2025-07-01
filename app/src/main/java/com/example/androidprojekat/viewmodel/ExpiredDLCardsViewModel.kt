@@ -31,21 +31,27 @@ class ExpiredDLCardsViewModel(
         viewModelScope.launch {
             _isLoading.value = true
 
+            println("Provjeravam internet konekciju...")
             val hasInternet = repository.hasInternetConnection()
+            println("Internet dostupan: $hasInternet")
 
             if (hasInternet || forceRefresh) {
                 try {
+                    println("Pokušavam dohvatiti podatke SA INTERNETA...")
                     val request = ExpiredDLCardRequest(
                         updateDate = "2025-06-03",
                         entityId = universalViewModel.selectedEntityIndexDL.value,
                         cantonId = universalViewModel.selectedCantonIndexDL.value
                     )
                     val apiData = repository.getExpiredDLCards(request)
+                    println("Podaci uspješno dohvaćeni sa interneta. Ukupno: ${apiData.result.size}")
+
                     repository.clearLocalData()
                     repository.saveToLocal(apiData.result)
                     _expiredDLCards.value = apiData.result
                 } catch (e: Exception) {
-                    _expiredDLCards.value = repository.loadFromLocal().map {
+                    println("Greška pri dohvaćanju sa interneta: ${e.message}")
+                    val localData = repository.loadFromLocal().map {
                         ExpiredDLCardInfo(
                             entity = it.entity,
                             canton = it.canton ?: "",
@@ -56,9 +62,12 @@ class ExpiredDLCardsViewModel(
                             femaleTotal = it.femaleTotal
                         )
                     }
+                    println("Koristim podatke iz LOKALNE BAZE. Ukupno: ${localData.size}")
+                    _expiredDLCards.value = localData
                 }
             } else {
-                _expiredDLCards.value = repository.loadFromLocal().map {
+                println("Nema interneta — učitavam podatke iz LOKALNE BAZE...")
+                val localData = repository.loadFromLocal().map {
                     ExpiredDLCardInfo(
                         entity = it.entity,
                         canton = it.canton ?: "",
@@ -69,12 +78,13 @@ class ExpiredDLCardsViewModel(
                         femaleTotal = it.femaleTotal
                     )
                 }
+                println("Podaci iz baze učitani. Ukupno: ${localData.size}")
+                _expiredDLCards.value = localData
             }
 
             _isLoading.value = false
         }
     }
-
 
     fun refreshExpiredDLCards() {
         viewModelScope.launch {

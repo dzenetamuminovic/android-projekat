@@ -46,7 +46,7 @@ dependencies {
     // Jetpack Compose Navigation
     implementation("androidx.navigation:navigation-compose:2.7.7")
 
-    //Podaci sa interneta, API
+    // Podaci sa interneta, API
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 
@@ -58,9 +58,11 @@ dependencies {
     // Compose Icons - Extended Material Icons
     implementation("androidx.compose.material:material-icons-extended")
 
-    //Swipe refresh
+    // Swipe refresh
     implementation ("com.google.accompanist:accompanist-swiperefresh:0.28.0")
 
+    // Chartovi
+    implementation ("com.github.PhilJay:MPAndroidChart:v3.1.0")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

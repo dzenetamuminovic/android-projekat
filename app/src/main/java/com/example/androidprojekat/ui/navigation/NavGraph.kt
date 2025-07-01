@@ -1,9 +1,11 @@
 package com.example.androidprojekat.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.androidprojekat.ui.screens.BarChartScreen
 import com.example.androidprojekat.ui.screens.HomeScreen
 import com.example.androidprojekat.ui.screens.FavouritesScreen
 import com.example.androidprojekat.ui.screens.SplashScreen
@@ -25,7 +27,7 @@ fun NavGraph(
 ) {
     NavHost(
         navController = navController,
-        startDestination = "splash"
+        startDestination = "home"
     ) {
         composable("splash") {
             SplashScreen(navController = navController)
@@ -59,5 +61,9 @@ fun NavGraph(
                 universalViewModel = universalViewModel
             )
         }
+        composable("statistics") {
+            BarChartScreen(navController = navController, universalViewModel = universalViewModel)
+        }
+
     }
 }

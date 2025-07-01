@@ -12,6 +12,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.androidprojekat.R
+import androidx.compose.ui.text.font.FontWeight
+import com.example.androidprojekat.ui.theme.StarYellow
+import com.example.androidprojekat.ui.theme.FWhite
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun OnboardingScreen(navController: NavController) {
@@ -35,15 +40,17 @@ fun OnboardingScreen(navController: NavController) {
             Text(
                 text = stringResource(id = R.string.onboarding1),
                 style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.onBackground
+                color = StarYellow,
+                textAlign = TextAlign.Center
             )
 
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
                 text = stringResource(id = R.string.onboarding2),
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onBackground
+                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                color = StarYellow,
+                textAlign = TextAlign.Center
             )
 
             Spacer(modifier = Modifier.height(40.dp))
@@ -53,9 +60,13 @@ fun OnboardingScreen(navController: NavController) {
                     navController.navigate("home") {
                         popUpTo("onboarding") { inclusive = true }
                     }
-                }
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = FWhite,
+                    contentColor = StarYellow
+                )
             ) {
-                Text("Započni")
+                Text("Započni", fontSize = 18.sp)
             }
         }
     }

@@ -1,11 +1,9 @@
 package com.example.androidprojekat.viewmodel
 
 import androidx.lifecycle.ViewModel
-import com.example.androidprojekat.repository.FavouritesRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import com.example.androidprojekat.data.local.favourites.FavouritesItem
-import com.example.androidprojekat.repository.ExpiredDLCardsRepository
 
 class UniversalViewModel() : ViewModel() {
 

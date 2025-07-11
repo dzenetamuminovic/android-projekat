@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">IDDEEA OpenData</string>
+    <string name="welcome">Welcome!</string>
+    <string name="onboarding1">Welcome to the IDDEEA OpenData application!</string>
+    <string name="onboarding2">Track issued ID cards in Bosnia and Herzegovina and explore open data sets.</string>
+    <string name="licnekarte">Issued ID Cards</string>
+    <string name="vozackedozvole">Invalid Driver’s Licenses</string>
+    <string name="favourites">View Saved</string>
+    <string name="noresults">No search results</string>
+    <string name="statistika">Statistics</string>
+</resources>

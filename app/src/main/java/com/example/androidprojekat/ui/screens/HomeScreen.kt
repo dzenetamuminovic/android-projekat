@@ -1,19 +1,20 @@
 package com.example.androidprojekat.ui.screens
 
+import android.app.Activity
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.DirectionsCar
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.material.icons.filled.Leaderboard
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -22,11 +23,21 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.androidprojekat.R
 import com.example.androidprojekat.ui.theme.PrimaryTextBlue
-import androidx.compose.material.icons.filled.Leaderboard
 import com.example.androidprojekat.ui.theme.StarYellow
+import com.example.androidprojekat.data.preferences.LanguageDataStore
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreen(navController: NavController) {
+    val context = LocalContext.current
+    val activity = context as? Activity
+    val coroutineScope = rememberCoroutineScope()
+
+    val selectedLangCode by LanguageDataStore.getLanguage(context).collectAsState(initial = "bs")
+    val selectedLanguage = if (selectedLangCode == "en") "English" else "Bosanski"
+
+    var expanded by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -34,10 +45,56 @@ fun HomeScreen(navController: NavController) {
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.height(56.dp))
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Dropdown za izbor jezika
+        Box(
+            modifier = Modifier
+                .fillMaxWidth(0.6f)
+                .border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(8.dp))
+                .padding(8.dp)
+                .clickable { expanded = true }
+        ) {
+            Text(
+                text = selectedLanguage,
+                modifier = Modifier.align(Alignment.CenterStart)
+            )
+
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                DropdownMenuItem(
+                    text = { Text("Bosanski") },
+                    onClick = {
+                        expanded = false
+                        coroutineScope.launch {
+                            if (selectedLangCode != "bs") {
+                                LanguageDataStore.setLanguage(context, "bs")
+                                activity?.recreate()
+                            }
+                        }
+                    }
+                )
+                DropdownMenuItem(
+                    text = { Text("English") },
+                    onClick = {
+                        expanded = false
+                        coroutineScope.launch {
+                            if (selectedLangCode != "en") {
+                                LanguageDataStore.setLanguage(context, "en")
+                                activity?.recreate()
+                            }
+                        }
+                    }
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            text = "Dobrodošli u IDDEEA OpenData aplikaciju.\nPratite informacije o izdanim ličnim kartama, isteklim vozačkim dozvolama i sačuvajte omiljene podatke.",
+            text = stringResource(id = R.string.welcome),
             color = MaterialTheme.colorScheme.onBackground,
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
@@ -77,6 +134,7 @@ fun HomeScreen(navController: NavController) {
                 ) {
                     navController.navigate("favourites")
                 }
+
                 MenuBox(
                     text = stringResource(id = R.string.statistika),
                     icon = Icons.Default.Leaderboard

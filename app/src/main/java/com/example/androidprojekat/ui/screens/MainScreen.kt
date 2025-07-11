@@ -36,7 +36,7 @@ fun MainScreen() {
     val favouritesRepository = FavouritesRepository(favouritesDao)
     val favouritesViewModel = remember { FavouritesViewModel(favouritesRepository) }
 
-    val expiredDLCardsRepository = ExpiredDLCardsRepository(RetrofitInstance.expiredDLCardsApi, context)
+    val expiredDLCardsRepository = ExpiredDLCardsRepository(context)
     val universalFactory = UniversalViewModelFactory(favouritesRepository, expiredDLCardsRepository)
     val universalViewModel: UniversalViewModel = viewModel(factory = universalFactory)
 

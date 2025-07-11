@@ -6,8 +6,8 @@ import android.content.Intent
 object Share {
     fun shareData(context: Context, text: String) {
         val sendIntent = Intent(Intent.ACTION_SEND).apply {
-            putExtra(Intent.EXTRA_TEXT, text)
             type = "text/plain"
+            putExtra(Intent.EXTRA_TEXT, text)
         }
         context.startActivity(Intent.createChooser(sendIntent, "Podijeli putem:"))
     }

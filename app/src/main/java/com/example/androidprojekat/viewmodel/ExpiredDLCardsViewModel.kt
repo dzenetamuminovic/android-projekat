@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.androidprojekat.data.api.expireddlcards.ExpiredDLCardInfo
 import com.example.androidprojekat.data.api.expireddlcards.ExpiredDLCardRequest
+import com.example.androidprojekat.data.api.expireddlcards.ExpiredDLCardResponse
 import com.example.androidprojekat.repository.ExpiredDLCardsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -34,27 +35,30 @@ class ExpiredDLCardsViewModel(
         viewModelScope.launch {
             _isLoading.value = true
 
-            println("Provjeravam internet konekciju...")
+            println("Pokrećem dohvaćanje DL podataka...")
             val hasInternet = repository.hasInternetConnection()
             println("Internet dostupan: $hasInternet")
 
             if (hasInternet || forceRefresh) {
                 try {
-                    println("Pokušavam dohvatiti podatke SA INTERNETA...")
                     val request = ExpiredDLCardRequest(
-                        updateDate = "2025-06-03",
+                        updateDate = "2025-07-03",
                         entityId = universalViewModel.selectedEntityIndexDL.value,
                         cantonId = universalViewModel.selectedCantonIndexDL.value
                     )
+                    println("Šaljem zahtjev: $request")
+
                     val apiData = repository.getExpiredDLCards(request)
-                    println("Podaci uspješno dohvaćeni sa interneta. Ukupno: ${apiData.result.size}")
+                    println("Broj podataka sa API-ja: ${apiData.size}")
 
                     repository.clearLocalData()
-                    repository.saveToLocal(apiData.result)
-                    _expiredDLCards.value = apiData.result
+                    repository.saveToLocal(apiData)
+                    _expiredDLCards.value = apiData
+                    _dataSource.value = "Podaci sa interneta"
+
                     _dataSource.value = "Podaci sa interneta"
                 } catch (e: Exception) {
-                    println("Greška pri dohvaćanju sa interneta: ${e.message}")
+                    println("Greška pri dohvaćanju sa API-ja: ${e.message}")
                     loadFromLocalAndSet()
                 }
             } else {

@@ -39,7 +39,7 @@ class IssuedIdCardsViewModel(
             if (hasInternet || forceRefresh) {
                 try {
                     val request = IssuedIdCardRequest(
-                        updateDate = "2025-06-03",
+                        updateDate = "2023-11-07",
                         entityId = universalViewModel.selectedEntityIndexID.value,
                         cantonId = universalViewModel.selectedCantonIndexID.value
                     )

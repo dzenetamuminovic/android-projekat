@@ -39,6 +39,10 @@ fun ExpiredDLCardsScreen(
 
     var entityExpanded by remember { mutableStateOf(false) }
     var cantonExpanded by remember { mutableStateOf(false) }
+    
+    LaunchedEffect(expiredDLCards) {
+        println("Broj podataka za prikaz: ${expiredDLCards.size}")
+    }
 
     LaunchedEffect(entityIndex, cantonIndex) {
         viewModel.fetchExpiredDLCards()

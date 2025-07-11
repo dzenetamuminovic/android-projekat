@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.androidprojekat.data.api.expireddlcards.ExpiredDLCardInfo
 import com.example.androidprojekat.data.api.expireddlcards.ExpiredDLCardRequest
-import com.example.androidprojekat.data.api.expireddlcards.ExpiredDLCardResponse
 import com.example.androidprojekat.repository.ExpiredDLCardsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -27,6 +26,8 @@ class ExpiredDLCardsViewModel(
     private val _dataSource = MutableStateFlow("Nepoznat izvor")
     val dataSource: StateFlow<String> = _dataSource
 
+    private val updateDate = "2025-07-03"
+
     init {
         fetchExpiredDLCards()
     }
@@ -35,28 +36,24 @@ class ExpiredDLCardsViewModel(
         viewModelScope.launch {
             _isLoading.value = true
 
-            println("Pokrećem dohvaćanje DL podataka...")
             val hasInternet = repository.hasInternetConnection()
             println("Internet dostupan: $hasInternet")
 
             if (hasInternet || forceRefresh) {
                 try {
                     val request = ExpiredDLCardRequest(
-                        updateDate = "2025-07-03",
+                        updateDate = updateDate,
                         entityId = universalViewModel.selectedEntityIndexDL.value,
                         cantonId = universalViewModel.selectedCantonIndexDL.value
                     )
-                    println("Šaljem zahtjev: $request")
 
                     val apiData = repository.getExpiredDLCards(request)
                     println("Broj podataka sa API-ja: ${apiData.size}")
 
                     repository.clearLocalData()
                     repository.saveToLocal(apiData)
-                    _expiredDLCards.value = apiData
-                    _dataSource.value = "Podaci sa interneta"
 
-                    _dataSource.value = "Podaci sa interneta"
+                    setData(apiData, "Podaci sa interneta")
                 } catch (e: Exception) {
                     println("Greška pri dohvaćanju sa API-ja: ${e.message}")
                     loadFromLocalAndSet()
@@ -68,6 +65,11 @@ class ExpiredDLCardsViewModel(
 
             _isLoading.value = false
         }
+    }
+
+    private fun setData(data: List<ExpiredDLCardInfo>, source: String) {
+        _expiredDLCards.value = data
+        _dataSource.value = source
     }
 
     private suspend fun loadFromLocalAndSet() {
@@ -83,8 +85,8 @@ class ExpiredDLCardsViewModel(
             )
         }
         println("Podaci iz baze učitani. Ukupno: ${localData.size}")
-        _expiredDLCards.value = localData
-        _dataSource.value = "Podaci iz baze"
+
+        setData(localData, "Podaci iz baze")
     }
 
     fun refreshExpiredDLCards() {

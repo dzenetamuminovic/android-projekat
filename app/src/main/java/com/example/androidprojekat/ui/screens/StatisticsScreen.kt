@@ -7,21 +7,25 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
+import com.example.androidprojekat.R
 import com.example.androidprojekat.ui.components.BottomBar
+import com.example.androidprojekat.utils.getBarChartData
+import com.example.androidprojekat.utils.getPieChartData
 import com.example.androidprojekat.viewmodel.ExpiredDLCardsViewModel
 import com.example.androidprojekat.viewmodel.UniversalViewModel
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.components.Description
-import com.github.mikephil.charting.data.*
+import com.github.mikephil.charting.data.BarData
+import com.github.mikephil.charting.data.BarDataSet
+import com.github.mikephil.charting.data.PieData
+import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
-import androidx.compose.ui.res.stringResource
-import com.example.androidprojekat.R
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,7 +55,6 @@ fun BarChartScreen(
             )
         }
     ) { innerPadding ->
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -79,20 +82,8 @@ fun BarChartScreen(
             } else if (expiredDLCards.isEmpty()) {
                 Text(text = stringResource(id = R.string.no_data))
             } else {
-                val entityCounts = expiredDLCards.groupingBy { it.entity }.eachCount()
-
-                val labels = entityCounts.keys.map {
-                    when (it.trim().lowercase()) {
-                        "federacija bosne i hercegovine" -> "FBiH"
-                        "republika srpska" -> "RS"
-                        "brčko distrikt bosne i hercegovine" -> "Brčko"
-                        else -> it
-                    }
-                }
-
-                val entries = entityCounts.entries.mapIndexed { index, entry ->
-                    BarEntry(index.toFloat(), entry.value.toFloat())
-                }
+                // Dohvatanje podataka za bar chart
+                val (entries, labels) = getBarChartData(expiredDLCards)
 
                 AndroidView(factory = {
                     BarChart(context).apply {
@@ -135,6 +126,7 @@ fun BarChartScreen(
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
+
                 Text(
                     text = stringResource(id = R.string.gender_chart_description),
                     style = MaterialTheme.typography.bodyMedium,
@@ -142,17 +134,12 @@ fun BarChartScreen(
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
 
-                val totalMale = expiredDLCards.sumOf { it.maleTotal }
-                val totalFemale = expiredDLCards.sumOf { it.femaleTotal }
+                // Dohvatanje podataka za pie chart
+                val pieEntries = getPieChartData(expiredDLCards)
 
                 AndroidView(factory = {
                     PieChart(context).apply {
-                        val entriesPie = listOf(
-                            PieEntry(totalMale.toFloat(), context.getString(R.string.male)),
-                            PieEntry(totalFemale.toFloat(), context.getString(R.string.female))
-                        )
-
-                        val dataSetPie = PieDataSet(entriesPie, "")
+                        val dataSetPie = PieDataSet(pieEntries, "")
                         dataSetPie.colors = listOf(Color.BLUE, Color.YELLOW)
                         dataSetPie.valueTextSize = 14f
 
@@ -175,4 +162,3 @@ fun BarChartScreen(
         }
     }
 }
-

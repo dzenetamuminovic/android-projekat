@@ -15,13 +15,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.androidprojekat.R
-import com.example.androidprojekat.repository.FavouritesRepository
-import com.example.androidprojekat.data.local.DatabaseProvider
 import com.example.androidprojekat.viewmodel.FavouritesViewModel
 import com.example.androidprojekat.viewmodel.UniversalViewModel
-import com.example.androidprojekat.ui.components.CardItem
 import com.example.androidprojekat.ui.components.BottomBar
-import com.example.androidprojekat.utils.Share
+import com.example.androidprojekat.ui.components.CardListItem
 
 @Composable
 fun FavouritesScreen(
@@ -31,11 +28,8 @@ fun FavouritesScreen(
 ) {
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
-    val dao = DatabaseProvider.getDatabase(context).favouritesDao()
-    val repository = FavouritesRepository(dao)
-    val viewModel = remember { FavouritesViewModel(repository) }
 
-    val favourites by viewModel.favourites.collectAsState()
+    val favourites by favouritesViewModel.favourites.collectAsState()
     var filterText by remember { mutableStateOf("") }
 
     val filteredFavourites = favourites.filter {
@@ -45,6 +39,13 @@ fun FavouritesScreen(
                 (it.canton ?: "").contains(filterText, ignoreCase = true) ||
                 it.total.toString().contains(filterText)
     }
+
+    val instLabel = stringResource(id = R.string.institution)
+    val muniLabel = stringResource(id = R.string.municipality)
+    val entLabel = stringResource(id = R.string.entity)
+    val kantLabel = stringResource(id = R.string.canton)
+    val totalLabel = stringResource(id = R.string.total_issued)
+    val viewMore = stringResource(id = R.string.view_more)
 
     Scaffold(
         bottomBar = {
@@ -89,39 +90,24 @@ fun FavouritesScreen(
             } else {
                 LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     items(filteredFavourites) { item ->
-                        val instLabel = stringResource(id = R.string.institution)
-                        val muniLabel = stringResource(id = R.string.municipality)
-                        val entLabel = stringResource(id = R.string.entity)
-                        val kantLabel = stringResource(id = R.string.canton)
-                        val totalLabel = stringResource(id = R.string.total_issued)
-                        val viewMore = stringResource(id = R.string.view_more)
-
-                        CardItem(
-                            title = "$instLabel: ${item.institution}",
-                            subtitle = "$muniLabel: ${item.municipality}",
-                            expandedContent = """
-                                $entLabel: ${item.entity}
-                                $kantLabel: ${item.canton}
-                                $totalLabel: ${item.total}
-                            """.trimIndent(),
+                        CardListItem(
+                            context = context,
+                            institution = item.institution,
+                            municipality = item.municipality,
+                            entity = item.entity,
+                            canton = item.canton,
+                            total = item.total,
                             showDelete = true,
-                            onDeleteClick = { viewModel.removeFavourites(item) },
-                            onShareClick = {
-                                val shareText = """
-                                    $instLabel: ${item.institution}
-                                    $muniLabel: ${item.municipality}
-                                    $entLabel: ${item.entity}
-                                    $kantLabel: ${item.canton}
-                                    $totalLabel: ${item.total}
-                                    $viewMore
-                                """.trimIndent()
-
-                                Share.shareData(context, shareText)
-                            }
+                            onDeleteClick = { favouritesViewModel.removeFavourites(item) },
+                            viewMoreText = viewMore,
+                            institutionLabel = instLabel,
+                            municipalityLabel = muniLabel,
+                            entityLabel = entLabel,
+                            cantonLabel = kantLabel,
+                            totalLabel = totalLabel
                         )
                     }
                 }
-
             }
         }
     }

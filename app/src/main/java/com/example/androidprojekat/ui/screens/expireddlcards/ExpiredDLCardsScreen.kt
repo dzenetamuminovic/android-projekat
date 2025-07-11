@@ -10,20 +10,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.androidprojekat.R
 import com.example.androidprojekat.viewmodel.ExpiredDLCardsViewModel
 import com.example.androidprojekat.viewmodel.UniversalViewModel
 import com.example.androidprojekat.viewmodel.FavouritesViewModel
 import com.example.androidprojekat.ui.components.BottomBar
-import com.example.androidprojekat.ui.components.CardItem
-import com.example.androidprojekat.utils.Share
+import com.example.androidprojekat.ui.components.SelectionDropdown
+import com.example.androidprojekat.ui.components.CardListItem
 import com.example.androidprojekat.data.local.favourites.FavouritesItem
+import com.example.androidprojekat.utils.isItemInFavourites
 
 @Composable
 fun ExpiredDLCardsScreen(
-    viewModel: ExpiredDLCardsViewModel = viewModel(),
+    viewModel: ExpiredDLCardsViewModel,
     universalViewModel: UniversalViewModel,
     favouritesViewModel: FavouritesViewModel,
     navController: NavController
@@ -60,7 +60,12 @@ fun ExpiredDLCardsScreen(
 
     Scaffold(
         bottomBar = {
-            BottomBar(navController = navController, favouritesRoute = "favourites", homeRoute = "home", statisticsRoute = "statistics")
+            BottomBar(
+                navController = navController,
+                favouritesRoute = "favourites",
+                homeRoute = "home",
+                statisticsRoute = "statistics"
+            )
         }
     ) { innerPadding ->
 
@@ -85,48 +90,30 @@ fun ExpiredDLCardsScreen(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Box(Modifier.padding(end = 8.dp)) {
-                    OutlinedButton(onClick = { entityExpanded = true }) {
-                        Text(universalViewModel.entityOptions[entityIndex])
+                SelectionDropdown(
+                    label = "Entity",
+                    options = universalViewModel.entityOptions,
+                    selectedIndex = entityIndex,
+                    expanded = entityExpanded,
+                    onExpandedChange = { entityExpanded = it },
+                    onOptionSelected = { index ->
+                        universalViewModel.updateSelectionsDL(index, cantonIndex)
                     }
-                    DropdownMenu(
-                        expanded = entityExpanded,
-                        onDismissRequest = { entityExpanded = false }
-                    ) {
-                        universalViewModel.entityOptions.forEachIndexed { index, option ->
-                            DropdownMenuItem(
-                                text = { Text(option) },
-                                onClick = {
-                                    universalViewModel.updateSelectionsDL(index, cantonIndex)
-                                    entityExpanded = false
-                                }
-                            )
-                        }
-                    }
-                }
+                )
 
-                Box {
-                    OutlinedButton(
-                        onClick = { cantonExpanded = true },
-                        enabled = entityIndex == 0 || !isCantonDisabled
-                    ) {
-                        Text(universalViewModel.cantonOptions[cantonIndex])
-                    }
-                    DropdownMenu(
-                        expanded = cantonExpanded,
-                        onDismissRequest = { cantonExpanded = false }
-                    ) {
-                        universalViewModel.cantonOptions.forEachIndexed { index, option ->
-                            DropdownMenuItem(
-                                text = { Text(option) },
-                                onClick = {
-                                    universalViewModel.updateSelectionsDL(entityIndex, index)
-                                    cantonExpanded = false
-                                }
-                            )
-                        }
-                    }
-                }
+                Spacer(modifier = Modifier.width(8.dp))
+
+                SelectionDropdown(
+                    label = "Canton",
+                    options = universalViewModel.cantonOptions,
+                    selectedIndex = cantonIndex,
+                    expanded = cantonExpanded,
+                    onExpandedChange = { cantonExpanded = it },
+                    onOptionSelected = { index ->
+                        universalViewModel.updateSelectionsDL(entityIndex, index)
+                    },
+                    enabled = entityIndex == 0 || !isCantonDisabled
+                )
             }
 
             if (isLoading && expiredDLCards.isEmpty()) {
@@ -143,26 +130,25 @@ fun ExpiredDLCardsScreen(
                         val total = item.maleTotal + item.femaleTotal
                         val expiredText = stringResource(id = R.string.expired_total, total)
 
-                        val existingFavourite = favourites.find {
-                            (it.institution?.trim() ?: "").equals(item.institution?.trim() ?: "", ignoreCase = true) &&
-                                    (it.entity?.trim() ?: "").equals(item.entity?.trim() ?: "", ignoreCase = true) &&
-                                    (it.canton ?: "").trim().equals(item.canton?.trim() ?: "", ignoreCase = true) &&
-                                    (it.municipality?.trim() ?: "").equals(item.municipality?.trim() ?: "", ignoreCase = true) &&
-                                    it.total == total
-                        }
+                        val existingFavourite = isItemInFavourites(
+                            favourites = favourites,
+                            institution = item.institution,
+                            municipality = item.municipality,
+                            entity = item.entity,
+                            canton = item.canton,
+                            total = total
+                        )
 
-                        CardItem(
-                            title = "$institutionText: ${item.institution ?: ""}",
-                            subtitle = "$municipalityText: ${item.municipality ?: ""}",
-                            expandedContent = """
-                                $entityText: ${item.entity ?: ""}
-                                $cantonText: ${item.canton ?: ""}
-                                $maleText: ${item.maleTotal}
-                                $femaleText: ${item.femaleTotal}
-                                $expiredText
-                            """.trimIndent(),
-                            isFavouriteInitial = existingFavourite != null,
-                            showDelete = false,
+                        CardListItem(
+                            context = context,
+                            institution = item.institution ?: "",
+                            municipality = item.municipality ?: "",
+                            entity = item.entity ?: "",
+                            canton = item.canton,
+                            maleTotal = item.maleTotal,
+                            femaleTotal = item.femaleTotal,
+                            total = total,
+                            isFavourite = existingFavourite != null,
                             onFavouriteToggle = { newState ->
                                 if (newState && existingFavourite == null) {
                                     favouritesViewModel.addFavourites(
@@ -179,20 +165,14 @@ fun ExpiredDLCardsScreen(
                                     favouritesViewModel.removeFavourites(existingFavourite)
                                 }
                             },
-                            onShareClick = {
-                                val shareText = """
-                                    $institutionText: ${item.institution ?: ""}
-                                    $municipalityText: ${item.municipality ?: ""}
-                                    $entityText: ${item.entity ?: ""}
-                                    $cantonText: ${item.canton ?: ""}
-                                    $maleText: ${item.maleTotal}
-                                    $femaleText: ${item.femaleTotal}
-                                    $expiredText
-                                    $viewMoreText
-                                """.trimIndent()
-
-                                Share.shareData(context, shareText)
-                            }
+                            viewMoreText = viewMoreText,
+                            institutionLabel = institutionText,
+                            municipalityLabel = municipalityText,
+                            entityLabel = entityText,
+                            cantonLabel = cantonText,
+                            maleLabel = maleText,
+                            femaleLabel = femaleText,
+                            totalLabel = expiredText
                         )
                     }
                 }

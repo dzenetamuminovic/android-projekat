@@ -2,13 +2,8 @@ package com.example.androidprojekat.viewmodel
 
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import com.example.androidprojekat.data.local.favourites.FavouritesItem
 
 class UniversalViewModel() : ViewModel() {
-
-    private val _favourites = MutableStateFlow<List<FavouritesItem>>(emptyList())
-    val favourites: StateFlow<List<FavouritesItem>> = _favourites
 
     val entityOptions = listOf("Entiteti", "Federacija BiH", "Republika Srpska", "Brčko Distrikt")
     val cantonOptions = listOf(

@@ -1,10 +1,7 @@
 package com.example.androidprojekat.ui.screens
 
 import android.app.Activity
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.Leaderboard
@@ -22,15 +19,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.androidprojekat.R
+import com.example.androidprojekat.ui.components.LanguageSelector
 import com.example.androidprojekat.ui.theme.PrimaryTextBlue
 import com.example.androidprojekat.ui.theme.StarYellow
 import com.example.androidprojekat.utils.LocaleHelper
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+
 
 @Composable
 fun HomeScreen(navController: NavController) {
     val context = LocalContext.current
     val activity = context as? Activity
-    var expanded by remember { mutableStateOf(false) }
     var selectedLanguage by remember { mutableStateOf(LocaleHelper.getSavedLanguage(context)) }
 
     Column(
@@ -41,44 +41,17 @@ fun HomeScreen(navController: NavController) {
     ) {
         Spacer(modifier = Modifier.height(16.dp))
 
-        Box(
-            modifier = Modifier
-                .fillMaxWidth(0.6f)
-                .border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(8.dp))
-                .padding(8.dp)
-                .clickable { expanded = true }
-        ) {
-            Text(
-                text = if (selectedLanguage == "en") "English" else "Bosanski",
-                modifier = Modifier.align(Alignment.CenterStart)
-            )
-
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
-                DropdownMenuItem(
-                    text = { Text("Bosanski") },
-                    onClick = {
-                        expanded = false
-                        if (selectedLanguage != "bs") {
-                            LocaleHelper.saveLanguagePreference(context, "bs")
-                            activity?.recreate()
-                        }
-                    }
-                )
-                DropdownMenuItem(
-                    text = { Text("English") },
-                    onClick = {
-                        expanded = false
-                        if (selectedLanguage != "en") {
-                            LocaleHelper.saveLanguagePreference(context, "en")
-                            activity?.recreate()
-                        }
-                    }
-                )
+        // Komponenta za odabir jezika
+        LanguageSelector(
+            selectedLanguage = selectedLanguage,
+            onLanguageChange = { newLang ->
+                if (newLang != selectedLanguage) {
+                    selectedLanguage = newLang
+                    LocaleHelper.saveLanguagePreference(context, newLang)
+                    activity?.recreate()
+                }
             }
-        }
+        )
 
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -104,7 +77,7 @@ fun HomeScreen(navController: NavController) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .border(width = 2.dp, color = StarYellow, shape = RoundedCornerShape(16.dp))
+                .border(width = 2.dp, color = StarYellow, shape = MaterialTheme.shapes.medium)
                 .padding(16.dp)
         ) {
             Column {

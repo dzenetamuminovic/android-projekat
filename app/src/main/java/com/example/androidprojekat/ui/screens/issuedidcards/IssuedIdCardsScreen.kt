@@ -40,6 +40,15 @@ fun IssuedIdCardsScreen(
     var entityExpanded by remember { mutableStateOf(false) }
     var cantonExpanded by remember { mutableStateOf(false) }
 
+    val titleText = stringResource(id = R.string.licnekarte)
+    val noResultsText = stringResource(id = R.string.noresults)
+    val institutionText = stringResource(id = R.string.institution)
+    val municipalityText = stringResource(id = R.string.municipality)
+    val entityText = stringResource(id = R.string.entity)
+    val cantonText = stringResource(id = R.string.canton)
+    val totalIssuedText = stringResource(id = R.string.total_issued)
+    val viewMoreText = stringResource(id = R.string.view_more)
+
     LaunchedEffect(entityIndex, cantonIndex) {
         viewModel.fetchIssuedIdCards()
     }
@@ -63,7 +72,7 @@ fun IssuedIdCardsScreen(
         ) {
 
             Text(
-                text = stringResource(id = R.string.licnekarte),
+                text = titleText,
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
@@ -125,7 +134,7 @@ fun IssuedIdCardsScreen(
                 }
             } else if (issuedIdCards.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(text = stringResource(id = R.string.noresults))
+                    Text(text = noResultsText)
                 }
             } else {
                 LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -139,12 +148,12 @@ fun IssuedIdCardsScreen(
                         }
 
                         CardItem(
-                            title = "Institucija: ${item.institution ?: ""}",
-                            subtitle = "Općina: ${item.municipality ?: ""}",
+                            title = "$institutionText: ${item.institution ?: ""}",
+                            subtitle = "$municipalityText: ${item.municipality ?: ""}",
                             expandedContent = """
-                                Entitet: ${item.entity ?: ""}
-                                Kanton: ${item.canton ?: ""}
-                                Ukupno izdato: ${item.total}
+                                $entityText: ${item.entity ?: ""}
+                                $cantonText: ${item.canton ?: ""}
+                                $totalIssuedText: ${item.total}
                             """.trimIndent(),
                             isFavouriteInitial = existingFavourite != null,
                             showDelete = false,
@@ -166,12 +175,12 @@ fun IssuedIdCardsScreen(
                             },
                             onShareClick = {
                                 val shareText = """
-                                    Institucija: ${item.institution ?: ""}
-                                    Općina: ${item.municipality ?: ""}
-                                    Entitet: ${item.entity ?: ""}
-                                    Kanton: ${item.canton ?: ""}
-                                    Ukupno izdato: ${item.total}
-                                    Pogledaj više na: https://odp.gov.ba/izdane-licne
+                                    $institutionText: ${item.institution ?: ""}
+                                    $municipalityText: ${item.municipality ?: ""}
+                                    $entityText: ${item.entity ?: ""}
+                                    $cantonText: ${item.canton ?: ""}
+                                    $totalIssuedText: ${item.total}
+                                    $viewMoreText
                                 """.trimIndent()
 
                                 Share.shareData(context, shareText)

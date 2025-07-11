@@ -24,7 +24,11 @@ import com.example.androidprojekat.ui.components.BottomBar
 import com.example.androidprojekat.utils.Share
 
 @Composable
-fun FavouritesScreen(universalViewModel: UniversalViewModel, navController: NavController, favouritesViewModel: FavouritesViewModel) {
+fun FavouritesScreen(
+    universalViewModel: UniversalViewModel,
+    navController: NavController,
+    favouritesViewModel: FavouritesViewModel
+) {
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val dao = DatabaseProvider.getDatabase(context).favouritesDao()
@@ -44,7 +48,12 @@ fun FavouritesScreen(universalViewModel: UniversalViewModel, navController: NavC
 
     Scaffold(
         bottomBar = {
-            BottomBar(navController = navController, favouritesRoute = "favourites", homeRoute = "home", statisticsRoute = "statistics")
+            BottomBar(
+                navController = navController,
+                favouritesRoute = "favourites",
+                homeRoute = "home",
+                statisticsRoute = "statistics"
+            )
         }
     ) { innerPadding ->
         Column(
@@ -57,7 +66,7 @@ fun FavouritesScreen(universalViewModel: UniversalViewModel, navController: NavC
                 }
         ) {
             Text(
-                text = "Sačuvani podaci",
+                text = stringResource(id = R.string.saved_data),
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.fillMaxWidth(),
@@ -69,7 +78,7 @@ fun FavouritesScreen(universalViewModel: UniversalViewModel, navController: NavC
             OutlinedTextField(
                 value = filterText,
                 onValueChange = { filterText = it },
-                label = { Text("Pretražite sačuvane podatke") },
+                label = { Text(stringResource(id = R.string.search_saved)) },
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -80,24 +89,31 @@ fun FavouritesScreen(universalViewModel: UniversalViewModel, navController: NavC
             } else {
                 LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     items(filteredFavourites) { item ->
+                        val instLabel = stringResource(id = R.string.institution)
+                        val muniLabel = stringResource(id = R.string.municipality)
+                        val entLabel = stringResource(id = R.string.entity)
+                        val kantLabel = stringResource(id = R.string.canton)
+                        val totalLabel = stringResource(id = R.string.total_issued)
+                        val viewMore = stringResource(id = R.string.view_more)
+
                         CardItem(
-                            title = "Institucija: ${item.institution}",
-                            subtitle = "Općina: ${item.municipality}",
+                            title = "$instLabel: ${item.institution}",
+                            subtitle = "$muniLabel: ${item.municipality}",
                             expandedContent = """
-                                Entitet: ${item.entity}
-                                Kanton: ${item.canton}
-                                Ukupno izdato: ${item.total}
+                                $entLabel: ${item.entity}
+                                $kantLabel: ${item.canton}
+                                $totalLabel: ${item.total}
                             """.trimIndent(),
                             showDelete = true,
                             onDeleteClick = { viewModel.removeFavourites(item) },
                             onShareClick = {
                                 val shareText = """
-                                    Institucija: ${item.institution}
-                                    Općina: ${item.municipality}
-                                    Entitet: ${item.entity}
-                                    Kanton: ${item.canton}
-                                    Ukupno izdato: ${item.total}
-                                    Pogledaj više na: https://odp.gov.ba
+                                    $instLabel: ${item.institution}
+                                    $muniLabel: ${item.municipality}
+                                    $entLabel: ${item.entity}
+                                    $kantLabel: ${item.canton}
+                                    $totalLabel: ${item.total}
+                                    $viewMore
                                 """.trimIndent()
 
                                 Share.shareData(context, shareText)
@@ -105,6 +121,7 @@ fun FavouritesScreen(universalViewModel: UniversalViewModel, navController: NavC
                         )
                     }
                 }
+
             }
         }
     }

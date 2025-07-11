@@ -13,6 +13,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.androidprojekat.ui.theme.FavouriteBackground
+import androidx.compose.ui.res.stringResource
+import com.example.androidprojekat.R
 
 @Composable
 fun CardItem(
@@ -53,12 +55,12 @@ fun CardItem(
                 ) {
                     if (showDelete) {
                         IconButton(onClick = onDeleteClick) {
-                            Icon(Icons.Default.Delete, contentDescription = "Obriši")
+                            Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.delete))
                         }
                     } else {
                         Icon(
                             imageVector = Icons.Default.Star,
-                            contentDescription = "Zvjezdica",
+                            contentDescription = stringResource(R.string.star),
                             tint = if (isFavourite) Color.Yellow else Color.Gray,
                             modifier = Modifier
                                 .size(24.dp)
@@ -72,7 +74,7 @@ fun CardItem(
                     Spacer(modifier = Modifier.width(16.dp))
 
                     IconButton(onClick = onShareClick) {
-                        Icon(Icons.Default.Share, contentDescription = "Dijeli")
+                        Icon(Icons.Default.Share, contentDescription = stringResource(R.string.share))
                     }
                 }
             }

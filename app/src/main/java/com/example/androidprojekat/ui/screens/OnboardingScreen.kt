@@ -66,7 +66,8 @@ fun OnboardingScreen(navController: NavController) {
                     contentColor = StarYellow
                 )
             ) {
-                Text("Započni", fontSize = 18.sp)
+                Text(text = stringResource(id = R.string.zapocni),
+                     fontSize = 18.sp)
             }
         }
     }

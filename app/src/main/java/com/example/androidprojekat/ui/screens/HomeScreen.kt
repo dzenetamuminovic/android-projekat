@@ -24,20 +24,14 @@ import androidx.navigation.NavController
 import com.example.androidprojekat.R
 import com.example.androidprojekat.ui.theme.PrimaryTextBlue
 import com.example.androidprojekat.ui.theme.StarYellow
-import com.example.androidprojekat.data.preferences.LanguageDataStore
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
+import com.example.androidprojekat.utils.LocaleHelper
 
 @Composable
 fun HomeScreen(navController: NavController) {
     val context = LocalContext.current
     val activity = context as? Activity
-    val coroutineScope = rememberCoroutineScope()
-
-    val selectedLangCode by LanguageDataStore.getLanguage(context).collectAsState(initial = "bs")
-    val selectedLanguage = if (selectedLangCode == "en") "English" else "Bosanski"
-
     var expanded by remember { mutableStateOf(false) }
+    var selectedLanguage by remember { mutableStateOf(LocaleHelper.getSavedLanguage(context)) }
 
     Column(
         modifier = Modifier
@@ -47,7 +41,6 @@ fun HomeScreen(navController: NavController) {
     ) {
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Dropdown za izbor jezika
         Box(
             modifier = Modifier
                 .fillMaxWidth(0.6f)
@@ -56,7 +49,7 @@ fun HomeScreen(navController: NavController) {
                 .clickable { expanded = true }
         ) {
             Text(
-                text = selectedLanguage,
+                text = if (selectedLanguage == "en") "English" else "Bosanski",
                 modifier = Modifier.align(Alignment.CenterStart)
             )
 
@@ -68,11 +61,9 @@ fun HomeScreen(navController: NavController) {
                     text = { Text("Bosanski") },
                     onClick = {
                         expanded = false
-                        coroutineScope.launch {
-                            if (selectedLangCode != "bs") {
-                                LanguageDataStore.setLanguage(context, "bs")
-                                activity?.recreate()
-                            }
+                        if (selectedLanguage != "bs") {
+                            LocaleHelper.saveLanguagePreference(context, "bs")
+                            activity?.recreate()
                         }
                     }
                 )
@@ -80,11 +71,9 @@ fun HomeScreen(navController: NavController) {
                     text = { Text("English") },
                     onClick = {
                         expanded = false
-                        coroutineScope.launch {
-                            if (selectedLangCode != "en") {
-                                LanguageDataStore.setLanguage(context, "en")
-                                activity?.recreate()
-                            }
+                        if (selectedLanguage != "en") {
+                            LocaleHelper.saveLanguagePreference(context, "en")
+                            activity?.recreate()
                         }
                     }
                 )
@@ -98,6 +87,15 @@ fun HomeScreen(navController: NavController) {
             color = MaterialTheme.colorScheme.onBackground,
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Text(
+            text = stringResource(id = R.string.home_description),
+            color = MaterialTheme.colorScheme.onBackground,
+            fontSize = 14.sp,
             textAlign = TextAlign.Center
         )
 

@@ -1,25 +1,27 @@
 package com.example.androidprojekat.utils
 
+import android.app.Activity
 import android.content.Context
-import android.content.ContextWrapper
 import android.content.res.Configuration
-import android.os.Build
 import java.util.*
 
 object LocaleHelper {
 
-    fun wrap(context: Context, language: String): ContextWrapper {
+    fun setLocale(context: Context, language: String) {
         val locale = Locale(language)
         Locale.setDefault(locale)
+        val config = Configuration()
+        config.setLocale(locale)
+        context.resources.updateConfiguration(config, context.resources.displayMetrics)
+    }
 
-        val config = Configuration(context.resources.configuration)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            config.setLocale(locale)
-        } else {
-            config.locale = locale
-        }
+    fun saveLanguagePreference(context: Context, langCode: String) {
+        val prefs = context.getSharedPreferences("language_pref", Context.MODE_PRIVATE)
+        prefs.edit().putString("lang", langCode).apply()
+    }
 
-        val newContext = context.createConfigurationContext(config)
-        return ContextWrapper(newContext)
+    fun getSavedLanguage(context: Context): String {
+        val prefs = context.getSharedPreferences("language_pref", Context.MODE_PRIVATE)
+        return prefs.getString("lang", "bs") ?: "bs"
     }
 }

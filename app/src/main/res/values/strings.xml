@@ -8,4 +8,47 @@
     <string name="favourites">Prikaži sačuvano</string>
     <string name="noresults">Nema rezultata pretrage</string>
     <string name="statistika">Statistika</string>
+    <string name="zapocni">Započni</string>
+    <string name="home_description">Ova aplikacija omogućava pregled otvorenih podataka vezanih za lične dokumente u Bosni i Hercegovini. Odaberite željenu kategoriju kako biste započeli pregled podataka.</string>
+
+
+
+    <string name="total_data">Ukupno podataka: %1$d (%2$s)</string>
+    <string name="bar_chart_title">Broj isteklih vozačkih dozvola po entitetima</string>
+    <string name="no_data">Nema podataka za prikaz.</string>
+    <string name="bar_chart_label">Broj EDL kartica po entitetima</string>
+    <string name="gender_chart_title">Polna struktura isteklih vozačkih dozvola</string>
+    <string name="gender_chart_description">Prikazuje omjer muških i ženskih korisnika čije su dozvole istekle.</string>
+    <string name="male">Muški</string>
+    <string name="female">Ženski</string>
+    <string name="chart_center_text">Istekle dozvole</string>
+
+
+    <string name="saved_data">Sačuvani podaci</string>
+    <string name="search_saved">Pretražite sačuvane podatke</string>
+    <string name="institution">Institucija</string>
+    <string name="municipality">Općina</string>
+    <string name="entity">Entitet</string>
+    <string name="canton">Kanton</string>
+
+    <string name="select_entity">Odaberite entitet</string>
+    <string name="select_canton">Odaberite kanton</string>
+
+    <string name="delete">Obriši</string>
+    <string name="share">Dijeli</string>
+    <string name="star">Zvjezdica</string>
+    <string name="view_more">Prikaži više</string>
+
+    <string name="total_issued">Ukupno izdato</string>
+    <string name="view_more_idcards">Pogledaj više na: https://odp.gov.ba/izdane-licne</string>
+
+
+    <string name="expired_total">Ukupno isteklih dozvola: %1$d</string>
+    <string name="view_more_dl">Pogledaj više na: https://odp.gov.ba/istekle-vozacke</string>
+
+    <string name="entiteti">Entiteti</string>
+    <string name="federacija_bih">Federacija BiH</string>
+    <string name="republika_srpska">Republika Srpska</string>
+    <string name="brcko_distrikt">Brčko Distrikt</string>
+
 </resources>

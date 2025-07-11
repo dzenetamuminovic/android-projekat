@@ -19,6 +19,9 @@ import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.components.Description
 import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
+import androidx.compose.ui.res.stringResource
+import com.example.androidprojekat.R
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -26,8 +29,7 @@ fun BarChartScreen(
     navController: NavController,
     universalViewModel: UniversalViewModel,
     viewModel: ExpiredDLCardsViewModel
-)
- {
+) {
     val context = LocalContext.current
     val expiredDLCards by viewModel.expiredDLCards.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
@@ -59,14 +61,14 @@ fun BarChartScreen(
         ) {
 
             Text(
-                text = "Ukupno podataka: ${expiredDLCards.size} ($dataSource)",
+                text = stringResource(id = R.string.total_data, expiredDLCards.size, dataSource),
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
             Text(
-                text = "Broj isteklih vozačkih dozvola po entitetima",
+                text = stringResource(id = R.string.bar_chart_title),
                 style = MaterialTheme.typography.titleMedium,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(bottom = 16.dp)
@@ -75,7 +77,7 @@ fun BarChartScreen(
             if (isLoading && expiredDLCards.isEmpty()) {
                 CircularProgressIndicator()
             } else if (expiredDLCards.isEmpty()) {
-                Text(text = "Nema podataka za prikaz.")
+                Text(text = stringResource(id = R.string.no_data))
             } else {
                 val entityCounts = expiredDLCards.groupingBy { it.entity }.eachCount()
 
@@ -94,7 +96,7 @@ fun BarChartScreen(
 
                 AndroidView(factory = {
                     BarChart(context).apply {
-                        val dataSet = BarDataSet(entries, "Broj EDL kartica po entitetima")
+                        val dataSet = BarDataSet(entries, context.getString(R.string.bar_chart_label))
                         dataSet.color = Color.BLUE
                         dataSet.valueTextSize = 12f
                         dataSet.barBorderWidth = 0.5f
@@ -128,13 +130,13 @@ fun BarChartScreen(
                 Divider(modifier = Modifier.padding(vertical = 8.dp))
 
                 Text(
-                    text = "Polna struktura isteklih vozačkih dozvola",
+                    text = stringResource(id = R.string.gender_chart_title),
                     style = MaterialTheme.typography.titleMedium,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
                 Text(
-                    text = "Prikazuje omjer muških i ženskih korisnika čije su dozvole istekle.",
+                    text = stringResource(id = R.string.gender_chart_description),
                     style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(bottom = 16.dp)
@@ -146,8 +148,8 @@ fun BarChartScreen(
                 AndroidView(factory = {
                     PieChart(context).apply {
                         val entriesPie = listOf(
-                            PieEntry(totalMale.toFloat(), "Muški"),
-                            PieEntry(totalFemale.toFloat(), "Ženski")
+                            PieEntry(totalMale.toFloat(), context.getString(R.string.male)),
+                            PieEntry(totalFemale.toFloat(), context.getString(R.string.female))
                         )
 
                         val dataSetPie = PieDataSet(entriesPie, "")
@@ -158,7 +160,7 @@ fun BarChartScreen(
 
                         description = Description().apply { text = "" }
 
-                        centerText = "Istekle dozvole"
+                        centerText = context.getString(R.string.chart_center_text)
                         setCenterTextSize(14f)
                         legend.isEnabled = true
                         setUsePercentValues(true)
@@ -173,3 +175,4 @@ fun BarChartScreen(
         }
     }
 }
+
